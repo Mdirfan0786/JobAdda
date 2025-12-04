@@ -62,11 +62,31 @@ export const Login = async (req, res) => {
     // });
 
     const token = crypto.randomBytes(32).toString("hex");
-    await User.updateOne({ id: user._id }, { token });
+    await User.updateOne({ _id: user._id }, { $set: { token } });
 
     res.json({ token, userId: user._id });
   } catch (err) {
     console.error("Error while fetching User details! ", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
+
+export const uploadProfilePicture = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const user = await User.findOne({ token: token });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    user.profilePicture = req.file.filename;
+    await user.save();
+
+    return res.json({ message: "profile picture updated!" });
+  } catch (err) {
+    console.error("Error while uploading profile picture! ", err.message);
     return res.status(500).json({ message: "Server Error!" });
   }
 };

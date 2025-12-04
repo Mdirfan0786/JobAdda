@@ -10,11 +10,11 @@ dotenv.config();
 
 const app = express();
 
-app.use(postRoutes);
-app.use(userRoutes);
-
 app.use(cors());
 app.use(express.json());
+
+app.use(postRoutes);
+app.use(userRoutes);
 
 const PORT = process.env.PORT || 7870;
 

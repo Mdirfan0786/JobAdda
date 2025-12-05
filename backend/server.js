@@ -20,7 +20,9 @@ const PORT = process.env.PORT || 7870;
 
 const start = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URL);
+    await mongoose.connect(process.env.MONGO_URL, {
+      dbName: "jobadda",
+    });
     console.log("MongoDB connected Successfully");
 
     app.listen(PORT, () => {

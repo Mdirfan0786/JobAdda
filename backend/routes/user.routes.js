@@ -1,8 +1,10 @@
 import { Router } from "express";
 import {
+  getAllUserProfile,
   getUserAndProfile,
   Login,
   register,
+  updateUserProfile,
   uploadProfilePicture,
   userUpdateProfile,
 } from "../controllers/user.controller.js";
@@ -28,7 +30,9 @@ router.post(
 );
 router.post("/register", register);
 router.post("/login", Login);
-router.post("/user_update", userUpdateProfile);
+router.patch("/user_update", userUpdateProfile);
 router.get("/get_user_and_profile", getUserAndProfile);
+router.put("/update_user_profile", updateUserProfile);
+router.get("/user/get_all_user", getAllUserProfile);
 
 export default router;

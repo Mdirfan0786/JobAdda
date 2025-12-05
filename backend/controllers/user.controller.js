@@ -1,5 +1,6 @@
 import Profile from "../models/profile.model.js";
 import User from "../models/user.model.js";
+import ConnectionRequest from "../models/connections.model.js";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -16,16 +17,20 @@ const convertUserDataTOPDF = async (userData) => {
   const stream = fs.createWriteStream("uploads/" + outputPath);
 
   doc.pipe(stream);
+
   doc.image(`uploads/${userData.userId.profilePicture}`, {
     align: "center",
     width: 100,
   });
+
   doc.moveDown(0.5);
+
   doc.fontSize(14).text(`Name: ${userData.userId.name}`);
   doc.fontSize(14).text(`Username: ${userData.userId.username}`);
   doc.fontSize(14).text(`Email: ${userData.userId.email}`);
   doc.fontSize(14).text(`Bio: ${userData.bio}`);
   doc.fontSize(14).text(`CurrentPost: ${userData.currentPost}`);
+
   doc.moveDown(0.5);
 
   doc.fontSize(14).text("Past Work: ");
@@ -238,4 +243,108 @@ export const downloadResume = async (req, res) => {
   let outputPath = await convertUserDataTOPDF(userProfile);
 
   return res.json({ message: outputPath });
+};
+
+//* =============== Sending Connection Request =============== *//
+export const sendConnectionRequest = async (req, res) => {
+  const { token, connectionId } = req.body;
+
+  try {
+    const user = await User.findOne({ token: token });
+    if (!user) return res.status(404).json({ message: "user not found!" });
+
+    const connectionUser = await User.findOne({ _id: connectionId });
+    if (!connectionUser) {
+      return res.status(404).json({ message: "Connection User not found!" });
+    }
+
+    const existingRequest = await ConnectionRequest.findOne({
+      userId: user._id,
+      connectionId: connectionUser._id,
+    });
+
+    if (existingRequest) {
+      return res.status(404).json({ message: "Request already send!" });
+    }
+
+    const Request = new ConnectionRequest({
+      userId: user._id,
+      connectionId: connectionUser._id,
+    });
+
+    await Request.save();
+
+    return res.json({ message: "Request sent" });
+  } catch (err) {
+    console.log("Error while Sending Connection Request! ", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
+
+//* =============== Getting My Connection Request =============== *//
+export const getMyConnectionRequest = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const user = await User.findOne({ token: token });
+    if (!user) return res.status(404).json({ message: "User not found!" });
+
+    const connections = await ConnectionRequest.findOne({
+      userId: user._id,
+    }).populate("userId", "name username email profilePicture");
+
+    return res.json({ connections });
+  } catch (err) {
+    console.log("Error While Getting My Connection Request! ", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
+
+//* =============== What Are My Connection Request =============== *//
+export const WhatAreMyConnection = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const user = await User.findOne({ token: token });
+    if (!user) return res.status(404).json({ message: "User not found!" });
+
+    const myConnections = await ConnectionRequest.findOne({
+      connectionId: user._id,
+    }).populate("userId", "name username email profilePicture");
+
+    return res.json(myConnections);
+  } catch (err) {
+    console.error(
+      "Error While knowing What Are My Connection Request! ",
+      err.message
+    );
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
+
+//* =============== Accept Connection Request =============== *//
+export const acceptConnectionRequest = async (req, res) => {
+  const { token, requestId, action_type } = req.body;
+
+  try {
+    const user = await User.findeOne({ token: token });
+    if (!user) return res.status(404).json({ message: "User not found!" });
+
+    const connection = await ConnectionRequest({ _id: requestId });
+    if (!connection) {
+      return res.status(404).json({ message: "Connection not found!" });
+    }
+
+    if (action_type === "accept") {
+      connection.status_accepted = true;
+    } else {
+      connection.status_accepted = false;
+    }
+
+    await connection.save();
+    return res.json({ message: "request Accepted!" });
+  } catch (err) {
+    console.error("Error While Accept Connection Request! ", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
 };

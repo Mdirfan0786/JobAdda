@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { ref } from "pdfkit";
 
 const connectionRequestSchema = new mongoose.Schema({
   userId: {

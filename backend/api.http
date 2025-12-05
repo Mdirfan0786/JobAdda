@@ -23,7 +23,7 @@ GET http://localhost:7870/get_user_and_profile HTTP/1.1
 Content-Type: application/json
 
 {
-    "token": "3a361bb1cfeafc8faaa1156cef941de90a6c937a9a0c3564bd004f383da7dcb7"
+    "token": "4963d85c0b3e24558ab8a68e287183bb8f68aff9adf029f9cbb059d646cd1129"
 }
 
 ###

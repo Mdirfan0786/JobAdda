@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+  downloadResume,
   getAllUserProfile,
   getUserAndProfile,
   Login,
@@ -34,5 +35,6 @@ router.patch("/user_update", userUpdateProfile);
 router.get("/get_user_and_profile", getUserAndProfile);
 router.put("/update_user_profile", updateUserProfile);
 router.get("/user/get_all_user", getAllUserProfile);
+router.get("/download_resume", downloadResume);
 
 export default router;

@@ -3,10 +3,52 @@ import User from "../models/user.model.js";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import PDFDocument from "pdfkit";
+import fs from "fs";
 
 dotenv.config();
 
-const convertUserDataTOPDF = (userData) => {};
+//* =============== Converting UserData to PDF =============== *//
+const convertUserDataTOPDF = async (userData) => {
+  const doc = new PDFDocument();
+
+  const outputPath = crypto.randomBytes(32).toString("hex") + ".pdf";
+  const stream = fs.createWriteStream("uploads/" + outputPath);
+
+  doc.pipe(stream);
+  doc.image(`uploads/${userData.userId.profilePicture}`, {
+    align: "center",
+    width: 100,
+  });
+  doc.moveDown(0.5);
+  doc.fontSize(14).text(`Name: ${userData.userId.name}`);
+  doc.fontSize(14).text(`Username: ${userData.userId.username}`);
+  doc.fontSize(14).text(`Email: ${userData.userId.email}`);
+  doc.fontSize(14).text(`Bio: ${userData.bio}`);
+  doc.fontSize(14).text(`CurrentPost: ${userData.currentPost}`);
+  doc.moveDown(0.5);
+
+  doc.fontSize(14).text("Past Work: ");
+  userData.pastWork.forEach((work, index) => {
+    doc.moveDown(0.5);
+    doc.fontSize(12).text(`Company: ${work.company}`);
+    doc.fontSize(12).text(`Position: ${work.position}`);
+    doc.fontSize(12).text(`Years: ${work.years}`);
+  });
+  doc.moveDown(0.5);
+
+  doc.fontSize(14).text("Education: ");
+  userData.education.forEach((education, index) => {
+    doc.moveDown(0.5);
+    doc.fontSize(12).text(`School: ${education.school}`);
+    doc.fontSize(12).text(`Degree: ${education.degree}`);
+    doc.fontSize(12).text(`fieldOfStudy: ${education.fieldOfStudy}`);
+  });
+
+  doc.end();
+
+  return outputPath;
+};
 
 //* =============== Register new User =============== *//
 export const register = async (req, res) => {
@@ -193,7 +235,7 @@ export const downloadResume = async (req, res) => {
     "name username email profilePicture"
   );
 
-  let a = await convertUserDataTOPDF(userProfile);
+  let outputPath = await convertUserDataTOPDF(userProfile);
 
-  return res.json({ message: a });
+  return res.json({ message: outputPath });
 };

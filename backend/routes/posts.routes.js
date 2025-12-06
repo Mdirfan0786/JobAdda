@@ -1,8 +1,20 @@
 import { Router } from "express";
-import { activeCheck } from "../controllers/posts.controller.js";
+import { activeCheck, createPost } from "../controllers/posts.controller.js";
+import multer, { diskStorage } from "multer";
 
 const router = Router();
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
+
 router.get("/", activeCheck);
+router.post("/create_post", upload.single("media"), createPost);
 
 export default router;

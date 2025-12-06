@@ -56,6 +56,12 @@ GET http://localhost:7870/user/get_all_user HTTP/1.1
 Content-Type: application/json
 
 ###
-DELETE http://localhost:7870/user/delete_post HTTP/1.1
+DELETE http://localhost:7870/delete_post HTTP/1.1
 Content-Type: application/json
+
+{
+  "token": "4b97f3b1b7cd20f2b9b70620cb0ece3022e309d3bbd442bd4f0cf4ef0a043ae4",
+  "post_id": "6933abf7ebd6321752c36ea9"
+}
+
 

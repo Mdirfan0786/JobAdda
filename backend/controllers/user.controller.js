@@ -115,7 +115,7 @@ export const Login = async (req, res) => {
     const token = crypto.randomBytes(32).toString("hex");
     await User.updateOne({ _id: user._id }, { $set: { token } });
 
-    res.json({ token, userId: user._id });
+    res.json({ token: token, userId: user._id });
   } catch (err) {
     console.error("Error while fetching User details! ", err.message);
     return res.status(500).json({ message: "Server Error!" });

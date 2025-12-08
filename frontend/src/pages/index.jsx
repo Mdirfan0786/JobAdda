@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { Geist, Geist_Mono } from "next/font/google";
 import styles from "@/styles/Home.module.css";
+import { useRouter } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export default function Home() {
+  const router = useRouter();
   return (
     <>
       <Head>
@@ -26,6 +28,25 @@ export default function Home() {
       >
         <main className={styles.main}>
           <h2>Hello</h2>
+          <div className={styles.container}>
+            <div className="mainContainer">
+              <div className="mainContainer-left">
+                <p>Connect with friends without exaggeration</p>
+                <p>A true social media platform, eith stories no blufs!</p>
+                <div
+                  onClick={() => {
+                    router.push("/login");
+                  }}
+                  className="buttonJoin"
+                >
+                  <p>Join Now</p>
+                </div>
+              </div>
+              <div className="mainContainer-right">
+                <img src="images/homemain_connection.svg" alt="" />
+              </div>
+            </div>
+          </div>
         </main>
       </div>
     </>

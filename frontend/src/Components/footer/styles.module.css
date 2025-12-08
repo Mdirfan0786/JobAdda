@@ -1,0 +1,54 @@
+.linkedinFooter {
+  background: transparent;
+  padding: 25px 0;
+  margin: 25px 0;
+  font-family: Arial, Helvetica, sans-serif;
+  border-top: 1px solid #ddd;
+}
+
+.footerContainer {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footerLogo {
+  font-size: 13px;
+  font-weight: 700;
+  margin-right: 10px;
+  color: #111;
+  letter-spacing: 0.5px;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.footerLogo span {
+  background-color: #111;
+  color: white;
+  padding: 0px 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.footerLogo:hover {
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.footerLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.footerLinks a {
+  font-size: 13px;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footerLinks a:hover {
+  color: #0a66c2;
+}

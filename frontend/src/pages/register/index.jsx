@@ -3,9 +3,11 @@ import React from "react";
 
 function registerComponent() {
   return (
-    <UserLayout>
-      <div>registerComponent</div>
-    </UserLayout>
+    <>
+      <UserLayout>
+        <div>registerComponent</div>
+      </UserLayout>
+    </>
   );
 }
 

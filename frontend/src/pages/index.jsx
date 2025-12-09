@@ -40,7 +40,7 @@ export default function Home() {
                   </p>
                   <div
                     onClick={() => {
-                      router.push("/register");
+                      router.push("/auth");
                     }}
                     className={styles.buttonJoin}
                   >

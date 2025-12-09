@@ -1,19 +1,19 @@
 .container {
   display: flex;
   justify-content: center;
-  height: 90svh;
+  min-height: 90svh;
   align-items: center;
   background: #f5f7fa;
 }
 
 .cardContainer {
-  height: 80vh;
+  min-height: 80vh;
   display: flex;
-  border-radius: 20px;
+  border-radius: 1.25rem;
   overflow: hidden;
   width: 75vw;
   background: #fff;
-  box-shadow: 0px 20px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1.25rem 2.5rem rgba(0, 0, 0, 0.1);
 }
 
 /* LEFT SIDE */
@@ -36,7 +36,7 @@
   align-items: center;
   justify-content: center;
   padding: 1.3rem 0;
-  max-width: 400px;
+  max-width: 25rem;
   margin: 0 auto;
 }
 
@@ -54,19 +54,19 @@
   border-radius: 0.3rem;
   margin-block: 0.6rem;
   width: 100%;
-  border: 1.5px solid #d0d0d0;
+  border: 0.093rem solid #d0d0d0;
   transition: 0.2s;
 }
 
 .inputField:focus {
   border-color: #00488b;
-  box-shadow: 0 0 8px rgba(0, 72, 139, 0.3);
+  box-shadow: 0 0 0.5rem rgba(0, 72, 139, 0.3);
 }
 
 .authBtn {
   width: 100%;
   padding: 0.9rem 1.5rem;
-  border-radius: 12px;
+  border-radius: 0.75rem;
   border: none;
   outline: none;
   cursor: pointer;
@@ -75,11 +75,52 @@
   color: #fff;
   background: linear-gradient(135deg, #00488b, #0080d6);
   transition: 0.25s ease-in-out;
-  box-shadow: 0 6px 15px rgba(0, 72, 139, 0.25);
+  box-shadow: 0 0.375rem 0.937rem rgba(0, 72, 139, 0.25);
 }
 
 .authBtn:active {
   transform: scale(0.97);
+}
+
+/* ERROR MESSAGE */
+.errorMessage {
+  background: #ffe6e6;
+  color: #d60000;
+  padding: 0.625rem 0.875rem;
+  margin-top: 0.625rem;
+  margin-bottom: 0.312rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  border-left: 0.25rem solid #ff4d4d;
+  text-align: left;
+  width: 100%;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* SUCCESS MESSAGE */
+.successMessage {
+  background: #e6ffed;
+  color: #067d36;
+  padding: 0.625rem 0.875rem;
+  margin-top: 0.625rem;
+  margin-bottom: 0.312rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  border-left: 0.25rem solid #16c172;
+  text-align: left;
+  width: 100%;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.187rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* RIGHT SIDE */
@@ -97,8 +138,8 @@
 .cardContainer_right::before {
   content: "";
   position: absolute;
-  left: -40px;
-  width: 80px;
+  left: -2.5rem;
+  width: 5rem;
   height: 100%;
   background: #fff;
   opacity: 0.15;

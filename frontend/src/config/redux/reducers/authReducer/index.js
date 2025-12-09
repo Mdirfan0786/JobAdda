@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { loginUser, registerUser } from "../../action/authAction";
 
 const initialState = {
-  user: [],
+  user: null,
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -17,14 +17,21 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    reset: () => initialState,
+    reset: (state) => {
+      Object.assign(state, initialState);
+    },
+
     handleLoginUser: (state) => {
       state.message = "hello";
+    },
+    emptyMessage: (state) => {
+      state.message = "";
     },
   },
 
   extraReducers: (builder) => {
     builder
+      // LOGIN
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
         state.message = "Knocking the door...";
@@ -34,13 +41,16 @@ const authSlice = createSlice({
         state.isError = false;
         state.isSuccess = true;
         state.loggedIn = true;
-        state.message = "Login Successfull";
+        state.user = action.payload.user;
+        state.message = "Login Successful";
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
       })
+
+      // REGISTER
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
         state.message = "Registering you...";
@@ -49,15 +59,18 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
-        state.loggedIn = true;
-        state.message = "Register Successfull";
+        state.loggedIn = false;
+        state.message = {
+          message: "Registration Successful, Please Login",
+        };
       })
-      .addCase(registerUser.rejected, (state) => {
+      .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload;
+        state.message = action.payload || "Something Went Wrong!";
       });
   },
 });
 
+export const { reset, emptyMessage } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,12 +1,14 @@
 import React from "react";
 import styles from "./styles.module.css";
+import { useRouter } from "next/router";
 
 function FooterComponent() {
+  const router = useRouter();
   return (
     <>
       <footer className={styles.linkedinFooter}>
         <div className={styles.footerContainer}>
-          <div className={styles.footerLogo}>
+          <div onClick={() => router.push("/")} className={styles.footerLogo}>
             Job<span>Adda</span> © 2025
           </div>
 

@@ -1,6 +1,6 @@
 .container {
   font-family: "poppins";
-  padding: 1.2rem;
+  padding: 1.2rem 3rem;
 }
 
 .mainContainer {
@@ -9,7 +9,7 @@
   align-items: center;
   gap: 4rem;
   height: 80vh;
-  /* padding-inline: 2rem; */
+  padding-inline: 2rem;
 }
 
 .mainContainer_left {

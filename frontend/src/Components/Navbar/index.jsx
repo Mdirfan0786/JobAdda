@@ -15,14 +15,14 @@ function NavbarComponent() {
           <div className={styles.navBarOptionContainer}>
             <div
               onClick={() => {
-                router.push("/auth?mode=login");
+                router.push("/auth?mode=register");
               }}
               className={styles.buttonJoin}
             >
               <p>Be a Part</p>
             </div>
             <button
-              onClick={() => router.push("/auth?mode=register")}
+              onClick={() => router.push("/auth?mode=login")}
               className={styles.linkedinLoginBtn}
             >
               Sign in

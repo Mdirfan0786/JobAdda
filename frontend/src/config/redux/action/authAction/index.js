@@ -37,10 +37,25 @@ export const registerUser = createAsyncThunk(
         username: user.username,
         name: user.name,
       });
-
-      console.log(response.data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response.data);
+    }
+  }
+);
+
+export const getAboutUser = createAsyncThunk(
+  "user/getAboutUser",
+  async (user, thunkAPI) => {
+    try {
+      const response = clientServer.get("/get_user_and_profile", {
+        params: {
+          token: user.token,
+        },
+      });
+
+      return thunkAPI.fulfillWithValue(response.data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.message.data);
     }
   }
 );

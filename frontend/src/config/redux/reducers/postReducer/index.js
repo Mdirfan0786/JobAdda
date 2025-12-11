@@ -37,7 +37,7 @@ const postSlice = createSlice({
       .addCase(getAllPosts.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload;
+        state.message = action.payload.profile;
       });
   },
 });

@@ -47,9 +47,9 @@ export const getAboutUser = createAsyncThunk(
   "user/getAboutUser",
   async (user, thunkAPI) => {
     try {
-      const response = clientServer.get("/get_user_and_profile", {
-        params: {
-          token: user.token,
+      const response = await clientServer.get("/get_user_and_profile", {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
         },
       });
 

@@ -1,0 +1,10 @@
+.container {
+  min-height: 100vh;
+  background-color: #f4f2ee;
+}
+
+/* Home Container */
+
+.homeContainer {
+  display: flex;
+}

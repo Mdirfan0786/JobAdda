@@ -1,10 +1,93 @@
 .container {
   min-height: 100vh;
   background-color: #f4f2ee;
+  padding: 0 5vw;
 }
 
 /* Home Container */
 
 .homeContainer {
+  padding: 1rem 0 0;
   display: flex;
+  gap: 1rem;
+  min-height: 90vh;
+}
+
+/* Home Left Container */
+.homeContainer__leftBar {
+  flex: 0.2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+/* .profileContainer {
+  min-height: 40vh;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  border: 1px solid #dfdeda;
+}
+.profile_details {
+  background-color: red;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.itemContainer {
+  min-height: 30vh;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  border: 1px solid #dfdeda;
+} */
+
+/* side Bar Container */
+.sideBarContainer {
+  min-height: 70vh;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  border: 1px solid #dfdeda;
+  padding: 0.4rem 0.2rem 0.2rem;
+}
+
+.sideBarOption {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  padding: 0.65rem;
+  border-radius: 0.5rem;
+  transition: 0.2s ease;
+}
+
+.sideBarOption:hover {
+  background-color: #dfdeda;
+}
+
+.sideBarOption p {
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.active {
+  background-color: #e8e6e3;
+  border-left: 4px solid #0a66c2;
+  font-weight: bold;
+}
+
+.active p {
+  color: #0a66c2;
+}
+
+.sideBarOption svg {
+  height: 1.2rem;
+}
+
+.homeContainer__feedContainer {
+  flex: 0.5;
+  background-color: #fff;
+  border-radius: 0.5rem;
+}
+.homeContainer__extraContainer {
+  flex: 0.3;
+  background-color: #fff;
+  border-radius: 0.5rem;
 }

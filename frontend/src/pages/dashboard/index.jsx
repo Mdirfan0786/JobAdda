@@ -8,32 +8,17 @@ import DashboardLayout from "@/layout/DashboardLayout";
 
 function DashboardComponent() {
   const router = useRouter();
-  const dispatch = useDispatch();
-
   const authState = useSelector((state) => state.auth);
-
-  const [isTokenThere, setTokenThere] = useState(false);
-
-  //   checking token available
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      router.push("/auth?mode=login");
-      return;
-    }
-
-    setTokenThere(true);
-  }, []);
+  const dispatch = useDispatch();
 
   //Fetching posts user details only when token is confirmed
   useEffect(() => {
-    if (isTokenThere) {
+    if (authState.isTokenThere) {
       const token = localStorage.getItem("token");
       dispatch(getAllPosts());
       dispatch(getAboutUser({ token }));
     }
-  }, [isTokenThere]);
+  }, [authState.isTokenThere]);
 
   return (
     <UserLayout>

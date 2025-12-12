@@ -47,6 +47,7 @@ function LoginComponent() {
 
   const handleRegister = () => {
     dispatch(registerUser({ email, username, password, name }));
+    router.push("/auth?mode=login");
   };
 
   const handleLogin = () => {

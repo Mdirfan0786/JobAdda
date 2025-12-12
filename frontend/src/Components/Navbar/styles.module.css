@@ -16,7 +16,6 @@
 }
 
 .navBarOptionContainer {
-  flex: 0.23;
   display: flex;
   gap: 1rem;
 }

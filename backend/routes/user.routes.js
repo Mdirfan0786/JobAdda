@@ -38,7 +38,7 @@ router.post("/login", Login);
 router.patch("/user_update", userUpdateProfile);
 router.get("/get_user_and_profile", getUserAndProfile);
 router.put("/update_user_profile", updateUserProfile);
-router.get("/user/get_all_user", getAllUserProfile);
+router.get("/user/get_all_users", getAllUserProfile);
 router.get("/user/download_resume", downloadResume);
 router.post("/user/send_connection_request", sendConnectionRequest);
 router.get("/user/get_my_connection_request", getMyConnectionRequest);

@@ -201,6 +201,18 @@ export default function DashboardLayout({ children }) {
           <div className={styles.homeContainer__feedContainer}>{children}</div>
           <div className={styles.homeContainer__extraContainer}>
             <h3>Top Profiles</h3>
+
+            {authState.all_profile_fetched &&
+              authState.all_users?.map((profile) => {
+                return (
+                  <div
+                    key={profile._id}
+                    className={styles.homeContainer__extraContainer_profile}
+                  >
+                    {profile?.userId?.name}
+                  </div>
+                );
+              })}
           </div>
         </div>
       </div>

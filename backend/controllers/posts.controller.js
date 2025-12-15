@@ -11,7 +11,9 @@ export const activeCheck = async (req, res) => {
 
 //* =============== Creating Posts =============== *//
 export const createPost = async (req, res) => {
-  const { token } = req.body;
+  const token = req.headers.authorization;
+
+  console.log("token: ", token);
 
   try {
     const user = await User.findOne({ token: token });

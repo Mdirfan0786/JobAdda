@@ -13,3 +13,31 @@ export const getAllPosts = createAsyncThunk(
     }
   }
 );
+
+// ============== Creating Posts ============== //
+export const CreatePost = createAsyncThunk(
+  "post/create_post",
+  async ({ file, body }, thunkAPI) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const formData = new FormData();
+      formData.append("body", body);
+
+      if (file) {
+        formData.append("media", file);
+      }
+
+      const response = await clientServer.post("/create_post", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: token,
+        },
+      });
+
+      return response.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data);
+    }
+  }
+);

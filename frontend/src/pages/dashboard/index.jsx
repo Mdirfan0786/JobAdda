@@ -54,6 +54,12 @@ function DashboardComponent() {
 
   // Delete Post
   const handleDelete = async (postId) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this post?"
+    );
+
+    if (!isConfirmed) return;
+
     await dispatch(
       deletePost({ token: localStorage.getItem("token"), post_id: postId })
     );

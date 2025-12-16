@@ -1,5 +1,5 @@
 import { clientServer } from "@/config";
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { asyncThunkCreator, createAsyncThunk } from "@reduxjs/toolkit";
 
 // ============== Get All Posts ============== //
 export const getAllPosts = createAsyncThunk(
@@ -38,6 +38,25 @@ export const CreatePost = createAsyncThunk(
       return response.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
+    }
+  }
+);
+
+// ============== Delete Post ============== //
+export const deletePost = createAsyncThunk(
+  "post/delete",
+  async (post_id, thunkAPI) => {
+    try {
+      const response = await clientServer.delete("/delete_post", {
+        data: {
+          token: localStorage.getItem("token"),
+          post_id: post_id.post_id,
+        },
+      });
+
+      return response.fulfillWithValue(response.data);
+    } catch (err) {
+      return thunkAPI.rejectWithValue("Something Went Wrong!");
     }
   }
 );

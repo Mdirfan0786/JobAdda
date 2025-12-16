@@ -100,6 +100,7 @@
 }
 .homeContainer__extraContainer {
   flex: 0.3;
+  max-height: 70vh;
   background-color: #fff;
   border-radius: 0.5rem;
 }

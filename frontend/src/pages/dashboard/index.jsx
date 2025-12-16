@@ -10,8 +10,10 @@ import { BASE_URL } from "@/config";
 
 function DashboardComponent() {
   const router = useRouter();
-  const authState = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+
+  const authState = useSelector((state) => state.auth);
+  const PostState = useSelector((state) => state.posts);
 
   const [postContent, setPostContent] = useState("");
   const [fileContent, setFileContent] = useState(null);
@@ -96,7 +98,50 @@ function DashboardComponent() {
               </div>
             )}
           </div>
+
           <div className={styles.whiteSpace}></div>
+
+          <div className={styles.all_posts_Container}>
+            {PostState.posts.map((post) => {
+              return (
+                <div key={post._id} className={styles.singleCard}>
+                  <div className={styles.singleCard_postContainer}>
+                    <div className={styles.postDetails_container}>
+                      <img
+                        className={styles.user_profile_picture}
+                        src={`${BASE_URL}/${post?.userId?.profilePicture}`}
+                        alt=""
+                      />
+
+                      <div className={styles.singleCard_userDetails}>
+                        <p>{post?.userId?.name}</p>
+                        <p>{post?.userId?.body}</p>
+                      </div>
+                    </div>
+
+                    <div className={styles.follow}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="size-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 4.5v15m7.5-7.5h-15"
+                        />
+                      </svg>
+
+                      <p>Follow</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </DashboardLayout>
     </UserLayout>

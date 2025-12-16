@@ -43,7 +43,8 @@
 
 /* side Bar Container */
 .sideBarContainer {
-  min-height: 70vh;
+  position: sticky;
+  top: 80px;
   border-radius: 0.5rem;
   background-color: #fff;
   border: 1px solid #dfdeda;
@@ -58,7 +59,8 @@
   padding: 0.65rem;
   margin-bottom: 0.1rem;
   border-radius: 0.5rem;
-  transition: 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .sideBarOption:hover {
@@ -71,13 +73,21 @@
 }
 
 .active {
-  background-color: #e8e6e3;
+  background-color: #eef3f8;
   border-left: 4px solid #0a66c2;
-  font-weight: bold;
+  box-shadow: inset 2px 0 0 #0a66c2;
 }
 
 .active p {
   color: #0a66c2;
+}
+
+.sideBarOption:active {
+  transform: scale(0.97);
+}
+
+.active svg {
+  stroke: #0a66c2;
 }
 
 .sideBarOption svg {

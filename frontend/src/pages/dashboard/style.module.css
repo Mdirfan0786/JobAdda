@@ -1,5 +1,5 @@
 .Dashboard_component {
-  height: 100vh;
+  min-height: 100vh;
   border-radius: 0.5rem;
 }
 
@@ -35,6 +35,7 @@
 
 .whiteSpace {
   height: 22px;
+  margin-bottom: 22px;
   width: 100%;
   border-bottom: 1.5px solid #8c8c8c33;
 }
@@ -69,4 +70,33 @@
   outline: none;
   color: #191919;
   resize: none;
+}
+
+.all_posts_Container {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  border: 1px solid #dfdeda;
+  padding: 0.5rem;
+}
+
+/* all posts */
+.singleCard {
+  width: 100%;
+}
+
+.singleCard_postContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem;
+}
+
+.postDetails_container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user_profile_picture {
+  height: 4rem;
 }

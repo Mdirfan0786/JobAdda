@@ -8,6 +8,18 @@ export default function JobComponent() {
       <DashboardLayout>
         <div>
           <h1>Jobs</h1>
+          <p
+            style={{
+              margin: "2rem 0",
+              minHeight: "8rem",
+              background: "#fff",
+              borderRadius: "0.5rem",
+              padding: "1rem",
+            }}
+          >
+            🚧 This feature is currently under development We’re writing clean
+            code & fixing bugs. Stay tuned.
+          </p>
         </div>
       </DashboardLayout>
     </UserLayout>

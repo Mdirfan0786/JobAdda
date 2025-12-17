@@ -60,3 +60,17 @@ export const deletePost = createAsyncThunk(
     }
   }
 );
+
+// ============== Increment Posts Likes ============== //
+export const incrementPostLikes = createAsyncThunk(
+  "post/incrementLikes",
+  async (postId, thunkAPI) => {
+    try {
+      const response = await clientServer.post("/increment_post_likes", {
+        post_id: postId,
+      });
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response.data.message);
+    }
+  }
+);

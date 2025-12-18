@@ -1,9 +1,12 @@
 import { getAboutUser, getAllUsers } from "@/config/redux/action/authAction";
 import {
   CreatePost,
+  deleteComment,
   deletePost,
+  getAllComments,
   getAllPosts,
   incrementPostLikes,
+  postComment,
 } from "@/config/redux/action/postAction";
 import UserLayout from "@/layout/userLayout";
 import { useRouter } from "next/router";
@@ -12,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import DashboardLayout from "@/layout/DashboardLayout";
 import styles from "./style.module.css";
 import { BASE_URL } from "@/config";
+import { resetPostId } from "@/config/redux/reducers/postReducer";
 
 function DashboardComponent() {
   const router = useRouter();
@@ -22,6 +26,7 @@ function DashboardComponent() {
 
   const [postContent, setPostContent] = useState("");
   const [fileContent, setFileContent] = useState(null);
+  const [commentText, setCommentText] = useState("");
 
   //Fetching posts user details only when token is confirmed
   useEffect(() => {
@@ -38,7 +43,7 @@ function DashboardComponent() {
     }
   }, [authState.all_profile_fetched, dispatch]);
 
-  // handling Post upload
+  // handling Post upload functionality
   const handlePost = async () => {
     try {
       await dispatch(
@@ -53,7 +58,7 @@ function DashboardComponent() {
     }
   };
 
-  // Delete Post
+  // handling Delete Post functionality
   const handleDelete = async (postId) => {
     const isConfirmed = window.confirm(
       "Are you sure you want to delete this post?"
@@ -66,6 +71,18 @@ function DashboardComponent() {
     );
 
     await dispatch(getAllPosts());
+  };
+
+  // handling Delete Comment functionality
+  const handleDeleteComment = async (commentId) => {
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this comment?"
+    );
+
+    if (!isConfirmed) return;
+
+    await dispatch(deleteComment({ comment_id: commentId }));
+    await dispatch(getAllComments({ post_id: PostState.postId }));
   };
 
   // Handling Share functionality
@@ -94,6 +111,11 @@ function DashboardComponent() {
   const handleLikes = async (post) => {
     await dispatch(incrementPostLikes(post._id));
     dispatch(getAllPosts());
+  };
+
+  // handle comments functionality
+  const handleComments = (post) => {
+    dispatch(getAllComments({ post_id: post._id }));
   };
 
   // Alert
@@ -261,7 +283,10 @@ function DashboardComponent() {
                         <p>{post.likes} Likes</p>
                       </div>
 
-                      <div className={styles.comment}>
+                      <div
+                        onClick={() => handleComments(post)}
+                        className={styles.comment}
+                      >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -308,6 +333,85 @@ function DashboardComponent() {
             })}
           </div>
         </div>
+
+        {PostState.postId && (
+          <div
+            onClick={() => dispatch(resetPostId())}
+            className={styles.comments_Container}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={styles.all_Comments_Container}
+            >
+              {/* COMMENTS */}
+              <div className={styles.commentsList}>
+                {PostState.comments.map((comment) => (
+                  <div key={comment._id} className={styles.commentCard}>
+                    <img
+                      src={`${BASE_URL}/${comment.userId.profilePicture}`}
+                      className={styles.avatar}
+                    />
+                    <div className={styles.content}>
+                      <p className={styles.username}>
+                        {comment.userId.name}
+                        <span>@{comment.userId.username}</span>
+                      </p>
+                      <p className={styles.text}>{comment.body}</p>
+                    </div>
+                    <div
+                      onClick={() => handleDeleteComment(comment._id)}
+                      className={styles.deleteComment}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="size-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* INPUT BAR */}
+              <div className={styles.Post_Comment_Container}>
+                <input
+                  type="text"
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="Comment"
+                />
+
+                <div
+                  onClick={async (e) => {
+                    if (!commentText.trim()) return;
+                    await dispatch(
+                      postComment({
+                        post_id: PostState.postId,
+                        body: commentText,
+                      })
+                    );
+                    await dispatch(
+                      getAllComments({ post_id: PostState.postId })
+                    );
+                    setCommentText("");
+                  }}
+                  className={styles.comment_button}
+                >
+                  <p>Comment</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </DashboardLayout>
     </UserLayout>
   );

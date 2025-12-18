@@ -13,8 +13,6 @@ export const activeCheck = async (req, res) => {
 export const createPost = async (req, res) => {
   const token = req.headers.authorization;
 
-  console.log("token: ", token);
-
   try {
     const user = await User.findOne({ token: token });
     if (!user) return res.status(404).json({ message: "User not found!" });

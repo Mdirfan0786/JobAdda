@@ -27,13 +27,19 @@ export default function DiscoverComponent() {
             authState.all_users?.map((user) => (
               <div key={user._id} className={styles.userCard}>
                 <img
-                  onClick={() => router.push("/view_profile")}
+                  onClick={() =>
+                    router.push(`/view_profile/${user.userId.username}`)
+                  }
                   className={styles.userCard_image}
                   src={`${BASE_URL}/${user.userId.profilePicture}`}
                   alt="profilePicture"
                 />
                 <div className={styles.userCard_profile_Details}>
-                  <h1 onClick={() => router.push("/view_profile")}>
+                  <h1
+                    onClick={() =>
+                      router.push(`/view_profile/${user.userId.username}`)
+                    }
+                  >
                     {user.userId.name}
                   </h1>
                   <p>@{user.userId.username}</p>

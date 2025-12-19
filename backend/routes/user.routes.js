@@ -45,6 +45,9 @@ router.post("/user/send_connection_request", sendConnectionRequest);
 router.get("/user/get_my_connection_request", getMyConnectionRequest);
 router.get("/user/user_connection_request", WhatAreMyConnection);
 router.get("/user/accept_connection_request", acceptConnectionRequest);
-router.get("/get_Profile_based_on_username", getUserDetailsBasedOnUsername);
+router.get(
+  "/user/get_Profile_based_on_username/:username",
+  getUserDetailsBasedOnUsername
+);
 
 export default router;

@@ -354,3 +354,21 @@ export const acceptConnectionRequest = async (req, res) => {
     return res.status(500).json({ message: "Server Error!" });
   }
 };
+
+//* =============== Get User Details Based On Username =============== *//
+export const getUserDetailsBasedOnUsername = async () => {
+  const { username } = req.query;
+
+  try {
+    const user = await User.findOne({ username: username });
+    if (!user) return res.status(404).json({ message: "User not found!" });
+
+    const userProfile = await Profile.findOne({ userId: user._id }).populate(
+      "userId",
+      "name username email profilePicture"
+    );
+  } catch (err) {
+    console.error("Error While Accept Connection Request! ", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};

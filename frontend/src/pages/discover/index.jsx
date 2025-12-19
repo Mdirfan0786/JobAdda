@@ -1,8 +1,10 @@
-import { getAllUsers } from "@/config/redux/action/authAction";
 import DashboardLayout from "@/layout/DashboardLayout";
 import UserLayout from "@/layout/userLayout";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import styles from "./style.module.css";
+import { getAllUsers } from "@/config/redux/action/authAction";
+import { BASE_URL } from "@/config";
 
 export default function DiscoverComponent() {
   const authState = useSelector((state) => state.auth);
@@ -12,12 +14,27 @@ export default function DiscoverComponent() {
     if (!authState.all_profile_fetched) {
       dispatch(getAllUsers());
     }
-  }, []);
+  }, [authState.all_profile_fetched, dispatch]);
+
   return (
     <UserLayout>
       <DashboardLayout>
-        <div>
-          <h1>Discover</h1>
+        <h1 style={{ marginBottom: "1rem" }}>Discover</h1>
+        <div className={styles.all_user_profile}>
+          {authState.all_profile_fetched &&
+            authState.all_users?.map((user) => (
+              <div key={user._id} className={styles.userCard}>
+                <img
+                  className={styles.userCard_image}
+                  src={`${BASE_URL}/${user.userId.profilePicture}`}
+                  alt="profilePicture"
+                />
+                <div className={styles.userCard_profile_Details}>
+                  <h1>{user.userId.name}</h1>
+                  <p>@{user.userId.username}</p>
+                </div>
+              </div>
+            ))}
         </div>
       </DashboardLayout>
     </UserLayout>

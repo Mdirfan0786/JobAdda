@@ -18,7 +18,7 @@
 .upload_button {
   position: absolute;
   right: 0;
-  bottom: -38%;
+  bottom: -30%;
   cursor: pointer;
   background-color: #378fe9;
   color: #fff;
@@ -74,7 +74,6 @@
 /* all posts */
 .singleCard {
   width: 100%;
-  min-height: 80vh;
   background-color: #fff;
   border-radius: 0.5rem;
   border: 1px solid #dfdeda;

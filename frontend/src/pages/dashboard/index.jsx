@@ -257,7 +257,9 @@ function DashboardComponent() {
                     </div>
 
                     <div className={styles.post_img}>
-                      <img src={`${BASE_URL}/${post.media}`} alt="" />
+                      {post.media && (
+                        <img src={`${BASE_URL}/${post.media}` || ""} alt="" />
+                      )}
                     </div>
 
                     <div className={styles.post_footer}>
@@ -344,7 +346,7 @@ function DashboardComponent() {
             >
               {/* COMMENTS */}
               <div className={styles.commentsList}>
-                <p style={{ fontWeight: "bold" }}>
+                <p style={{ fontWeight: "bold", marginBottom: "1rem" }}>
                   Total comments - {PostState.comments.length}
                 </p>
                 {PostState.comments.map((comment) => (

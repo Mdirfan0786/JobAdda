@@ -13,6 +13,9 @@
   background-color: #fff;
   box-shadow: 10px 10px 10px 0 rgb(0, 0, 0, 0.2);
 }
+.userCard:active {
+  transform: translate(1.2);
+}
 
 .userCard_image {
   max-width: 5rem;
@@ -23,6 +26,14 @@
 .userCard_profile_Details > h1 {
   font-size: 1.3rem;
   cursor: pointer;
+}
+.userCard_profile_Details > h1::selection {
+  background: transparent;
+  color: inherit;
+}
+.userCard_profile_Details > h1:hover {
+  color: #378fe9;
+  text-decoration: underline;
 }
 
 .userCard_profile_Details > p {

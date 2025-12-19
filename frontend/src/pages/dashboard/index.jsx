@@ -189,6 +189,7 @@ function DashboardComponent() {
                     <div className={styles.singleCard_postContainer}>
                       <div className={styles.postDetails_container}>
                         <img
+                          onClick={() => router.push("/view_profile")}
                           className={styles.user_profile_picture}
                           src={`${BASE_URL}/${post?.userId?.profilePicture}`}
                           alt=""
@@ -198,7 +199,10 @@ function DashboardComponent() {
                           className={styles.singleCard_userDetails}
                           style={{ marginTop: "0.5rem" }}
                         >
-                          <p style={{ fontWeight: "bold" }}>
+                          <p
+                            onClick={() => router.push("./view_profile")}
+                            style={{ fontWeight: "bold", cursor: "pointer" }}
+                          >
                             {post?.userId?.name}
                           </p>
 
@@ -352,6 +356,7 @@ function DashboardComponent() {
                 {PostState.comments.map((comment) => (
                   <div key={comment._id} className={styles.commentCard}>
                     <img
+                      onClick={() => router.push("/view_profile")}
                       src={`${BASE_URL}/${comment.userId.profilePicture}`}
                       className={styles.avatar}
                     />

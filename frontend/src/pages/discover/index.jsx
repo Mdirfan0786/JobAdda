@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import styles from "./style.module.css";
 import { getAllUsers } from "@/config/redux/action/authAction";
 import { BASE_URL } from "@/config";
+import { useRouter } from "next/router";
 
 export default function DiscoverComponent() {
   const authState = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const router = useRouter();
 
   useEffect(() => {
     if (!authState.all_profile_fetched) {
@@ -25,12 +27,15 @@ export default function DiscoverComponent() {
             authState.all_users?.map((user) => (
               <div key={user._id} className={styles.userCard}>
                 <img
+                  onClick={() => router.push("/view_profile")}
                   className={styles.userCard_image}
                   src={`${BASE_URL}/${user.userId.profilePicture}`}
                   alt="profilePicture"
                 />
                 <div className={styles.userCard_profile_Details}>
-                  <h1>{user.userId.name}</h1>
+                  <h1 onClick={() => router.push("/view_profile")}>
+                    {user.userId.name}
+                  </h1>
                   <p>@{user.userId.username}</p>
                 </div>
               </div>

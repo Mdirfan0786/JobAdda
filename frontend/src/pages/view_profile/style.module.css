@@ -26,8 +26,67 @@
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
   cursor: pointer;
-  /* background-image: url(); */
   background-color: #004182;
+  position: relative;
+}
+
+.profile_left_backgroundImg > img {
+  height: 100%;
+  width: 100%;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.profile_pic {
+  position: absolute;
+  bottom: -30%;
+  left: 3%;
+}
+
+.profile_pic > img {
+  max-height: 30vh;
+  padding: 0.3rem;
+  background-color: #fff;
+  box-shadow: 2px 2px 2px 0 rgb(0, 0, 0, 0.1);
+  border-radius: 100%;
+}
+
+.profile_left_container_bottom {
+  padding: 0 2rem;
+}
+
+.whitespace {
+  height: 4.5rem;
+  text-align: end;
+}
+
+.profilePic_edit > svg {
+  height: 2.5rem;
+  margin-top: 1rem;
+  padding-inline: 0.5rem;
+  padding-block: 0.5rem;
+  border-radius: 100%;
+  color: #0a66c2;
+  cursor: pointer;
+}
+
+.profilePic_edit > svg:hover {
+  background-color: #ebf4fd;
+}
+
+/* background left edit btn */
+
+.backgroundPic_edit > svg {
+  height: 2.5rem;
+  position: absolute;
+  top: 6%;
+  right: 2%;
+  color: #0a66c2;
+  background-color: #fff;
+  padding-inline: 0.5rem;
+  padding-block: 0.5rem;
+  border-radius: 100%;
+  cursor: pointer;
 }
 
 /* Profile right Container */
@@ -55,6 +114,7 @@
 .premium_profile_picture {
   max-width: 3.5rem;
   cursor: pointer;
+  border-radius: 100%;
 }
 
 .premium_profile_data {

@@ -31,7 +31,7 @@ PUT http://localhost:7870/update_user_profile HTTP/1.1
 Content-Type: application/json
 
 {
-  "token": "ebbc9012b2d6c4d057aea1a396a3aac6982978793342481413870671c8beb564",
+  "token": "7474c39650ef9fff2969e2df297cf87fe6642a7d432ebfce01fda547cdcc1a7e",
   "bio": "Learning full-stack development.",
   "currentPost": "Student",
   "pastWork": [
@@ -69,10 +69,10 @@ PATCH  http://localhost:7870/user_update HTTP/1.1
 Content-Type: application/json
 
 {
-  "token": "201fd3519ef290e226bddf05a486a8913bcc8e0c5fd465db84f794abb579318b", 
-  "username": "md_shahreyar_Alam_786",
-  "email": "MdShahreyarAlam0786@gmail.com",
-  "profileBackgroundPicture": "defaultBackground.jpg"
+  "token": "7474c39650ef9fff2969e2df297cf87fe6642a7d432ebfce01fda547cdcc1a7e", 
+  "username": "mdirfan0786",
+  "email": "mdirfan0786@gmail.com",
+  "profilePicture": "git_pfp.jpg"
 }
 
 

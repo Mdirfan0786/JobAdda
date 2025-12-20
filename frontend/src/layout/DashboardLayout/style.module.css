@@ -121,6 +121,7 @@
 .premium_profile_picture {
   max-width: 3.5rem;
   cursor: pointer;
+  border-radius: 100%;
 }
 
 .premium_profile_data {

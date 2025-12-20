@@ -10,6 +10,7 @@ import {
   register,
   sendConnectionRequest,
   updateUserProfile,
+  uploadingBackgroundPicture,
   uploadProfilePicture,
   userUpdateProfile,
   WhatAreMyConnection,
@@ -33,6 +34,11 @@ router.post(
   "/upload_profile_picture",
   upload.single("profile_picture"),
   uploadProfilePicture
+);
+router.post(
+  "/upload_profile_background_picture",
+  upload.single("profile_background_picture"),
+  uploadingBackgroundPicture
 );
 router.post("/register", register);
 router.post("/login", Login);

@@ -18,7 +18,11 @@ const convertUserDataTOPDF = async (userData) => {
 
   doc.pipe(stream);
 
-  doc.image(`uploads/${userData.userId.profilePicture}`, {
+  const imagePath = userData?.userId?.profilePicture
+    ? `uploads/${userData.userId.profilePicture}`
+    : "uploads/default.jpg";
+
+  doc.image(imagePath, {
     align: "center",
     width: 100,
   });
@@ -149,6 +153,27 @@ export const uploadProfilePicture = async (req, res) => {
   }
 };
 
+//* =============== Uploading Profile Background Picture =============== *//
+export const uploadingBackgroundPicture = async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const user = await User.findOne({ token: token });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found!" });
+    }
+
+    user.profileBackgroundPicture = req.file.filename;
+    await user.save();
+
+    return res.json({ message: "profile background picture updated!" });
+  } catch (err) {
+    console.error("Error while uploading profile picture! ", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
+
 //* =============== Updating User Profile =============== *//
 export const userUpdateProfile = async (req, res) => {
   try {
@@ -193,7 +218,7 @@ export const getUserAndProfile = async (req, res) => {
 
     const UserProfile = await Profile.findOne({ userId: user._id }).populate(
       "userId",
-      "name email username profilePicture"
+      "name email username profilePicture profileBackgroundPicture"
     );
 
     res.json(UserProfile);
@@ -225,10 +250,12 @@ export const updateUserProfile = async (req, res) => {
 //* =============== Getting all User Profile =============== *//
 export const getAllUserProfile = async (req, res) => {
   try {
-    const profile = await Profile.find().populate(
+    let profile = await Profile.find().populate(
       "userId",
-      "name username email profilePicture"
+      "name username email profilePicture profileBackgroundPicture"
     );
+
+    profile = profile.filter((p) => p.userId !== null);
 
     return res.json({ profile });
   } catch (err) {
@@ -297,7 +324,10 @@ export const getMyConnectionRequest = async (req, res) => {
 
     const connections = await ConnectionRequest.findOne({
       userId: user._id,
-    }).populate("userId", "name username email profilePicture");
+    }).populate(
+      "userId",
+      "name username email profilePicture profileBackgroundPicture"
+    );
 
     return res.json({ connections });
   } catch (err) {
@@ -316,7 +346,10 @@ export const WhatAreMyConnection = async (req, res) => {
 
     const myConnections = await ConnectionRequest.findOne({
       connectionId: user._id,
-    }).populate("userId", "name username email profilePicture");
+    }).populate(
+      "userId",
+      "name username email profilePicture profileBackgroundPicture"
+    );
 
     return res.json(myConnections);
   } catch (err) {
@@ -333,10 +366,11 @@ export const acceptConnectionRequest = async (req, res) => {
   const { token, requestId, action_type } = req.body;
 
   try {
-    const user = await User.findeOne({ token: token });
+    const user = await User.findOne({ token: token });
     if (!user) return res.status(404).json({ message: "User not found!" });
 
-    const connection = await ConnectionRequest({ _id: requestId });
+    const connection = await ConnectionRequest.findOne({ _id: requestId });
+
     if (!connection) {
       return res.status(404).json({ message: "Connection not found!" });
     }
@@ -367,7 +401,7 @@ export const getUserDetailsBasedOnUsername = async (req, res) => {
 
     const userProfile = await Profile.findOne({ userId: user._id }).populate(
       "userId",
-      "name username email profilePicture"
+      "name username email profilePicture profileBackgroundPicture"
     );
 
     if (!userProfile) {

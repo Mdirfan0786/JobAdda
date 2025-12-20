@@ -261,7 +261,7 @@ export default function DashboardLayout({ children }) {
                     </div>
                   ))
                 ) : (
-                  <p style={{ color: "#888" }}>No premium profiles found</p>
+                  <p style={{ color: "#888" }}>No profiles found</p>
                 ))}
 
               <div

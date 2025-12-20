@@ -31,7 +31,11 @@ export default function ViewProfile({ userProfile }) {
     <UserLayout>
       <div className={styles.conteiner}>
         <div className={styles.profile_container}>
-          <div className={styles.profile_container_left}></div>
+          <div className={styles.profile_container_left}>
+            <div className={styles.profile_left_details_container}>
+              <div className={styles.profile_left_backgroundImg}></div>
+            </div>
+          </div>
           <div className={styles.profile_container_right}>
             <div className={styles.premium_profiles}>
               <p

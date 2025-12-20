@@ -17,23 +17,40 @@ function LoginComponent() {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (authState.message) {
+      const timer = setTimeout(() => {
+        dispatch(emptyMessage());
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [authState.message, dispatch]);
+
+  // Show/Hide Password
+  const handleEnterSubmit = (e) => {
+    if (e.key === "Enter") {
+      if (userLoginMethod) {
+        handleLogin();
+      } else {
+        handleRegister();
+      }
+    }
+  };
 
   // if Login then go to /dashboard
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      router.push("/dashboard");
-    }
-  });
-
-  useEffect(() => {
-    dispatch(emptyMessage());
-  }, [userLoginMethod]);
+    const token = localStorage.getItem("token");
+    if (token) router.replace("/dashboard");
+  }, [router]);
 
   // Login & Register Mode
   useEffect(() => {
     if (mode === "login") {
       setUserLoginMethod(true);
-    } else {
+    } else if (mode === "signup") {
       setUserLoginMethod(false);
     }
   }, [mode]);
@@ -41,13 +58,25 @@ function LoginComponent() {
   // redirect /dashboard after Login
   useEffect(() => {
     if (authState.loggedIn) {
-      router.push("/dashboard");
+      router.replace("/dashboard");
     }
   }, [authState.loggedIn]);
 
+  useEffect(() => {
+    if (authState.isSuccess && !userLoginMethod) {
+      setUserLoginMethod(true);
+      router.replace("/auth?mode=login");
+      dispatch(emptyMessage());
+    }
+  }, [authState.isSuccess, userLoginMethod, router, dispatch]);
+
+  // setting showPass Hide
+  useEffect(() => {
+    setShowPassword(false);
+  }, [userLoginMethod]);
+
   const handleRegister = () => {
     dispatch(registerUser({ email, username, password, name }));
-    router.push("/auth?mode=login");
   };
 
   const handleLogin = () => {
@@ -64,16 +93,15 @@ function LoginComponent() {
             </p>
 
             {/* MESSAGE */}
-            {authState.isError && authState.message && (
-              <p className={styles.errorMessage}>
-                {typeof authState.message === "string"
-                  ? authState.message
-                  : authState.message.message}
-              </p>
-            )}
-
-            {authState.isSuccess && !authState.isError && authState.message && (
-              <p className={styles.successMessage}>
+            {authState.message && (
+              <p
+                className={
+                  authState.isError
+                    ? styles.errorMessage
+                    : styles.successMessage
+                }
+                style={{ display: authState.message ? "block" : "none" }}
+              >
                 {typeof authState.message === "string"
                   ? authState.message
                   : authState.message.message}
@@ -89,13 +117,16 @@ function LoginComponent() {
                     className={styles.inputField}
                     type="text"
                     placeholder="Name"
+                    onKeyDown={handleEnterSubmit}
                   />
+
                   <input
                     onChange={(e) => setUsername(e.target.value)}
                     value={username}
                     className={styles.inputField}
                     type="text"
                     placeholder="Username"
+                    onKeyDown={handleEnterSubmit}
                   />
                 </div>
               )}
@@ -104,17 +135,28 @@ function LoginComponent() {
                 onChange={(e) => setEmail(e.target.value)}
                 value={email}
                 className={styles.inputField}
-                type="text"
+                type="email"
                 placeholder="Email"
+                onKeyDown={handleEnterSubmit}
               />
 
-              <input
-                onChange={(e) => setPassword(e.target.value)}
-                value={password}
-                className={styles.inputField}
-                type="password"
-                placeholder="Password"
-              />
+              <div className={styles.passwordWrapper}>
+                <input
+                  onChange={(e) => setPassword(e.target.value)}
+                  value={password}
+                  className={styles.inputField}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  onKeyDown={handleEnterSubmit}
+                />
+
+                <span
+                  className={styles.eyeIcon}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "🙈" : "👁️"}
+                </span>
+              </div>
 
               <button
                 onClick={() => {
@@ -137,7 +179,9 @@ function LoginComponent() {
                   fontSize: "0.9rem",
                 }}
                 onClick={() => {
-                  setUserLoginMethod(!userLoginMethod);
+                  router.push(
+                    `/auth?mode=${userLoginMethod ? "signup" : "login"}`
+                  );
                   setEmail("");
                   setPassword("");
                   setName("");

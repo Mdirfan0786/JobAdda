@@ -10,10 +10,27 @@
   min-height: 100vh;
 }
 
+/* Profile Left Container */
 .profile_container_left {
   flex: 0.75;
-  background-color: white;
 }
+
+.profile_left_details_container {
+  min-height: 80vh;
+  background-color: #fff;
+  border-radius: 0.5rem;
+}
+
+.profile_left_backgroundImg {
+  height: 32vh;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  cursor: pointer;
+  /* background-image: url(); */
+  background-color: #004182;
+}
+
+/* Profile right Container */
 
 .profile_container_right {
   flex: 0.25;

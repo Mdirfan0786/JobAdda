@@ -1,0 +1,21 @@
+.conteiner {
+  padding-inline: 4.5rem;
+  background-color: #f4f2ee;
+}
+
+.profile_container {
+  padding-block: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.profile_container_left {
+  flex: 0.75;
+  min-height: 40vh;
+  background-color: white;
+}
+
+.profile_container_right {
+  flex: 0.25;
+  background-color: white;
+}

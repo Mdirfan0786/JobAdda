@@ -1,14 +1,17 @@
 import DashboardLayout from "@/layout/DashboardLayout";
 import UserLayout from "@/layout/userLayout";
 import { clientServer } from "@/config";
+import styles from "./style.module.css";
 
 export default function ViewProfile({ userProfile }) {
   return (
     <UserLayout>
-      <DashboardLayout>
-        <h1>{userProfile.userId.name}</h1>
-        <p>@{userProfile.userId.username}</p>
-      </DashboardLayout>
+      <div className={styles.conteiner}>
+        <div className={styles.profile_container}>
+          <div className={styles.profile_container_left}></div>
+          <div className={styles.profile_container_right}></div>
+        </div>
+      </div>
     </UserLayout>
   );
 }

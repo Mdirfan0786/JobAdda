@@ -72,3 +72,15 @@
   padding: 0px 0.5rem;
   border-radius: 0.25rem;
 }
+
+/* Hover */
+.hoverProfile:hover {
+  background-color: #ebf4fd;
+  color: #0a66c2;
+  transition: 0.2s ease-in-out;
+}
+
+.hoverLogout:hover {
+  background-color: #ce65653b;
+  transition: 0.2s ease-in-out;
+}

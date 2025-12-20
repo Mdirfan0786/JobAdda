@@ -9,6 +9,17 @@ function NavbarComponent() {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const getPageTitle = () => {
+    if (router.pathname === "/dashboard") return "Profile";
+    return "Dashboard";
+  };
+
+  const handleProfileNav = () => {
+    router.pathname === "/dashboard"
+      ? router.push(`/view_profile/${authState.user.userId.username}`)
+      : router.push("/dashboard");
+  };
+
   return (
     <>
       <div className={styles.container}>
@@ -21,10 +32,26 @@ function NavbarComponent() {
             {/* if User is Logged in then show */}
             {authState.profileFetched && (
               <div>
-                <div style={{ display: "flex", gap: "1.2rem" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "1.2rem",
+                  }}
+                >
                   <p>hey, {authState.user.userId.name} 👋</p>
-                  <p style={{ fontWeight: "bold", cursor: "pointer" }}>
-                    Profile
+                  <p
+                    onClick={handleProfileNav}
+                    className={styles.hoverProfile}
+                    style={{
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      paddingInline: "0.8rem",
+                      paddingBlock: "0.3rem",
+                      borderRadius: "0.25rem",
+                    }}
+                  >
+                    {getPageTitle()}
                   </p>
                   <p
                     onClick={(e) => {
@@ -32,10 +59,14 @@ function NavbarComponent() {
                       router.push("/auth?mode=login");
                       dispatch(reset());
                     }}
+                    className={styles.hoverLogout}
                     style={{
                       color: "red",
                       fontWeight: "bold",
                       cursor: "pointer",
+                      paddingInline: "0.8rem",
+                      paddingBlock: "0.3rem",
+                      borderRadius: "0.25rem",
                     }}
                   >
                     Logout

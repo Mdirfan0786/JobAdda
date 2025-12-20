@@ -7,15 +7,90 @@
   padding-block: 1rem;
   display: flex;
   gap: 1rem;
+  min-height: 100vh;
 }
 
 .profile_container_left {
   flex: 0.75;
-  min-height: 40vh;
   background-color: white;
 }
 
 .profile_container_right {
   flex: 0.25;
-  background-color: white;
+}
+
+.premium_profiles {
+  min-height: 60vh;
+  border-radius: 0.5rem;
+  padding-inline: 1.5rem;
+  padding-block: 1rem;
+  background-color: #fff;
+}
+
+.premium_Profiles_details {
+  border-bottom: 1px solid #e3dfdf;
+  display: flex;
+  align-items: start;
+  padding: 1rem 0;
+  gap: 0.5rem;
+}
+
+.premium_profile_picture {
+  max-width: 3.5rem;
+  cursor: pointer;
+}
+
+.premium_profile_data {
+  width: 100%;
+}
+
+.premium_profile_data > p:hover {
+  color: #0a66c2;
+  cursor: pointer;
+}
+
+.premium_profile_message {
+  font-size: 0.7rem;
+  padding: 0.35rem;
+  margin: 1rem 0 0;
+  text-align: center;
+  border: 2px solid #0a66c2;
+  color: #0a66c2;
+  font-weight: bold;
+  border-radius: 5rem;
+  cursor: pointer;
+}
+
+.premium_profile_message:hover {
+  background-color: #ebf4fd;
+  color: #004182;
+  border: 2px solid #004182;
+}
+
+.Explore_job_adda {
+  display: flex;
+  justify-content: center;
+}
+
+.Explore_job_adda > p {
+  margin-top: 1rem;
+  color: #0a66c2;
+  max-width: 60%;
+  text-align: center;
+  padding-inline: 1rem;
+  padding-block: 0.5rem;
+  font-weight: bold;
+
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+
+.Explore_job_adda > p:hover {
+  background-color: #ebf4fd;
+  color: #004182;
+}
+
+.Explore_job_adda > p::selection {
+  background: transparent;
+  color: inherit;
 }

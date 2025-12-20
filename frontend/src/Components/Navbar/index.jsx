@@ -9,15 +9,26 @@ function NavbarComponent() {
   const router = useRouter();
   const dispatch = useDispatch();
 
+  const profileRoutes = [
+    "/dashboard",
+    "/discover",
+    "/myConnections",
+    "/Jobs",
+    "/Saved_items",
+    "/Groups",
+    "/Events",
+  ];
+
   const getPageTitle = () => {
-    if (router.pathname === "/dashboard") return "Profile";
-    return "Dashboard";
+    return profileRoutes.includes(router.pathname) ? "Profile" : "Dashboard";
   };
 
   const handleProfileNav = () => {
-    router.pathname === "/dashboard"
-      ? router.push(`/view_profile/${authState.user.userId.username}`)
-      : router.push("/dashboard");
+    if (profileRoutes.includes(router.pathname)) {
+      router.push(`/view_profile/${authState.user.userId.username}`);
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   return (

@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "./style.module.css";
 import { setTokenIsThere } from "@/config/redux/reducers/authReducer";
+import { BASE_URL } from "@/config";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
@@ -22,6 +23,13 @@ export default function DashboardLayout({ children }) {
 
     Dispatch(setTokenIsThere());
   }, []);
+
+  // Alert
+  const handleAlert = () => {
+    alert(
+      `🚧 This feature is currently under development  We’re writing clean code & fixing bugs. Stay tuned.`
+    );
+  };
 
   return (
     <div>
@@ -200,19 +208,69 @@ export default function DashboardLayout({ children }) {
           </div>
           <div className={styles.homeContainer__feedContainer}>{children}</div>
           <div className={styles.homeContainer__extraContainer}>
-            <h3>Top Profiles</h3>
+            <div className={styles.premium_profiles}>
+              <p
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                Top Profiles
+              </p>
 
-            {authState.all_profile_fetched &&
-              authState.all_users?.map((profile) => {
-                return (
-                  <div
-                    key={profile._id}
-                    className={styles.homeContainer__extraContainer_profile}
-                  >
-                    {profile?.userId?.name}
-                  </div>
-                );
-              })}
+              {authState.all_profile_fetched &&
+                (authState.all_users?.length > 0 ? (
+                  authState.all_users.map((profile) => (
+                    <div
+                      key={profile.userId._id}
+                      className={styles.premium_Profiles_details}
+                    >
+                      <img
+                        onClick={() =>
+                          router.push(
+                            `/view_profile/${profile.userId.username}`
+                          )
+                        }
+                        className={styles.premium_profile_picture}
+                        src={`${BASE_URL}/${profile.userId.profilePicture}`}
+                        alt="profile Picture"
+                      />
+
+                      <div className={styles.premium_profile_data}>
+                        <p
+                          onClick={() =>
+                            router.push(
+                              `/view_profile/${profile.userId.username}`
+                            )
+                          }
+                          style={{ fontWeight: "bold" }}
+                        >
+                          {profile.userId.name}
+                        </p>
+                        <p style={{ fontSize: "0.8rem", color: "#808080" }}>
+                          @{profile.userId.username}
+                        </p>
+                        <div
+                          onClick={handleAlert}
+                          className={styles.premium_profile_message}
+                        >
+                          Message
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ color: "#888" }}>No premium profiles found</p>
+                ))}
+
+              <div
+                onClick={() => router.push("/discover")}
+                className={styles.Explore_job_adda}
+              >
+                <p>Explore Job Adda</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

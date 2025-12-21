@@ -221,45 +221,50 @@ export default function DashboardLayout({ children }) {
 
               {authState.all_profile_fetched &&
                 (authState.all_users?.length > 0 ? (
-                  authState.all_users.map((profile) => (
-                    <div
-                      key={profile.userId._id}
-                      className={styles.premium_Profiles_details}
-                    >
-                      <img
-                        onClick={() =>
-                          router.push(
-                            `/view_profile/${profile.userId.username}`
-                          )
-                        }
-                        className={styles.premium_profile_picture}
-                        src={`${BASE_URL}/${profile.userId.profilePicture}`}
-                        alt="profile Picture"
-                      />
-
-                      <div className={styles.premium_profile_data}>
-                        <p
+                  authState.all_users
+                    .filter(
+                      (profile) =>
+                        profile.userId._id !== authState.user?.userId?._id
+                    )
+                    .map((profile) => (
+                      <div
+                        key={profile.userId._id}
+                        className={styles.premium_Profiles_details}
+                      >
+                        <img
                           onClick={() =>
                             router.push(
                               `/view_profile/${profile.userId.username}`
                             )
                           }
-                          style={{ fontWeight: "bold" }}
-                        >
-                          {profile.userId.name}
-                        </p>
-                        <p style={{ fontSize: "0.8rem", color: "#808080" }}>
-                          @{profile.userId.username}
-                        </p>
-                        <div
-                          onClick={handleAlert}
-                          className={styles.premium_profile_message}
-                        >
-                          Message
+                          className={styles.premium_profile_picture}
+                          src={`${BASE_URL}/${profile.userId.profilePicture}`}
+                          alt="profile Picture"
+                        />
+
+                        <div className={styles.premium_profile_data}>
+                          <p
+                            onClick={() =>
+                              router.push(
+                                `/view_profile/${profile.userId.username}`
+                              )
+                            }
+                            style={{ fontWeight: "bold" }}
+                          >
+                            {profile.userId.name}
+                          </p>
+                          <p style={{ fontSize: "0.8rem", color: "#808080" }}>
+                            @{profile.userId.username}
+                          </p>
+                          <div
+                            onClick={handleAlert}
+                            className={styles.premium_profile_message}
+                          >
+                            Message
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    ))
                 ) : (
                   <p style={{ color: "#888" }}>No profiles found</p>
                 ))}

@@ -15,7 +15,7 @@ const initialState = {
   isTokenThere: false,
   message: "",
   profileFetched: false,
-  connection: [],
+  connections: [],
   connectionRequest: [],
   all_users: [],
   all_profile_fetched: false,

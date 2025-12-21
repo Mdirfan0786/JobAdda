@@ -19,6 +19,7 @@
 
 .userCard_image {
   max-width: 5rem;
+  padding: 0.7rem;
   border-radius: 100%;
   cursor: pointer;
 }

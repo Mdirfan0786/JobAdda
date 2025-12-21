@@ -4,16 +4,51 @@ import { BASE_URL, clientServer } from "@/config";
 import styles from "./style.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { getAllUsers } from "@/config/redux/action/authAction";
+import {
+  getAllUsers,
+  getConnectionRequest,
+  sendConnectionRequest,
+} from "@/config/redux/action/authAction";
 import { useRouter } from "next/router";
 
 export default function ViewProfile({ userProfile }) {
   const [uploadBackgroundPic, setuploadBackgroundPic] = useState(false);
   const [fileContent, setFileContent] = useState(null);
+  const [userPost, setUserPost] = useState([]);
+  const [isCurrentUserInConnection, setIsCurrentUserInConnection] =
+    useState(false);
+
   const authState = useSelector((state) => state.auth);
+  const postState = useSelector((state) => state.posts);
 
   const dispatch = useDispatch();
   const router = useRouter();
+
+  // getting User Post
+  const getUserPost = async () => {
+    await dispatch(getAllUsers());
+    await getConnectionRequest({ token: localStorage.getItem("token") });
+  };
+
+  useEffect(() => {
+    let post = postState.posts.filter((post) => {
+      return post.userId.username === router.query.username;
+    });
+
+    setUserPost(post);
+  }, [postState.posts]);
+
+  useEffect(() => {
+    console.log(authState.connections, userProfile.userId._id);
+
+    if (
+      authState.connections.some(
+        (user) => user.connectionId._id === userProfile.userId._id
+      )
+    ) {
+      setIsCurrentUserInConnection(true);
+    }
+  }, [authState.connections]);
 
   // Getting all users
   useEffect(() => {
@@ -22,8 +57,11 @@ export default function ViewProfile({ userProfile }) {
     }
   }, [authState.all_profile_fetched, dispatch]);
 
-  // Alert
+  useEffect(() => {
+    getUserPost();
+  }, []);
 
+  // Alert
   const handleAlert = () => {
     alert(
       `🚧 This feature is currently under development  We’re writing clean code & fixing bugs. Stay tuned.`
@@ -107,10 +145,10 @@ export default function ViewProfile({ userProfile }) {
 
                   <p style={{ color: "#808080", fontSize: "1.3rem" }}>
                     {userProfile.bio || userProfile.userId.username} |{" "}
-                    {userProfile.currentPost} at{" "}
-                    {userProfile.education[0].school},{" "}
-                    {userProfile.education[0].degree},
-                    {userProfile.education[0].fieldOfStudy}
+                    {userProfile.currentPost || "Student"} at{" "}
+                    {userProfile.education?.[0]?.school || "N/A"},{" "}
+                    {userProfile.education?.[0]?.degree || ""}{" "}
+                    {userProfile.education?.[0]?.fieldOfStudy || ""}
                   </p>
 
                   <p
@@ -118,6 +156,26 @@ export default function ViewProfile({ userProfile }) {
                       color: "#808080",
                     }}
                   ></p>
+                </div>
+
+                <div className={styles.connection_request}>
+                  {isCurrentUserInConnection ? (
+                    <button className={styles.connectedBtn}>Connected</button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        dispatch(
+                          sendConnectionRequest({
+                            token: localStorage.getItem("token"),
+                            user_id,
+                          })
+                        );
+                      }}
+                      className={styles.connectBtn}
+                    >
+                      connect
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -136,64 +194,67 @@ export default function ViewProfile({ userProfile }) {
 
               {authState.all_profile_fetched &&
                 (authState.all_users?.length > 0 ? (
-                  authState.all_users.map((profile) => (
-                    <div
-                      key={profile.userId._id}
-                      className={styles.premium_Profiles_details}
-                    >
-                      <img
-                        onClick={() =>
-                          router.push(
-                            `/view_profile/${profile.userId.username}`
-                          )
-                        }
-                        className={styles.premium_profile_picture}
-                        src={`${BASE_URL}/${profile.userId.profilePicture}`}
-                        alt="profile Picture"
-                      />
-
-                      <div className={styles.premium_profile_data}>
-                        <p
+                  authState.all_users
+                    .filter(
+                      (profile) =>
+                        profile.userId._id !== authState.user?.userId?._id
+                    )
+                    .map((profile) => (
+                      <div
+                        key={profile.userId._id}
+                        className={styles.premium_Profiles_details}
+                      >
+                        <img
                           onClick={() =>
                             router.push(
                               `/view_profile/${profile.userId.username}`
                             )
                           }
-                          style={{ fontWeight: "bold" }}
-                        >
-                          {profile.userId.name}
-                        </p>
-                        <p
-                          style={{
-                            fontSize: "0.8rem",
-                            color: "#808080",
-                            marginBottom: "0.5rem",
-                          }}
-                        >
-                          @{profile.userId.username}
-                        </p>
+                          className={styles.premium_profile_picture}
+                          src={`${BASE_URL}/${profile.userId.profilePicture}`}
+                          alt="profile Picture"
+                        />
 
-                        {profile.currentPost.length > 0 && (
+                        <div className={styles.premium_profile_data}>
+                          <p
+                            onClick={() =>
+                              router.push(
+                                `/view_profile/${profile.userId.username}`
+                              )
+                            }
+                            style={{ fontWeight: "bold" }}
+                          >
+                            {profile.userId.name}
+                          </p>
                           <p
                             style={{
                               fontSize: "0.8rem",
                               color: "#808080",
+                              marginBottom: "0.5rem",
                             }}
                           >
-                            {profile.currentPost} at{" "}
-                            {profile.education[0].school}
+                            @{profile.userId.username}
                           </p>
-                        )}
 
-                        <div
-                          onClick={handleAlert}
-                          className={styles.premium_profile_message}
-                        >
-                          Message
+                          {profile.currentPost &&
+                            profile.currentPost.length > 0 && (
+                              <p
+                                style={{ fontSize: "0.8rem", color: "#808080" }}
+                              >
+                                {profile.currentPost} at{" "}
+                                {profile.education?.[0]?.school || "N/A"}
+                              </p>
+                            )}
+
+                          <div
+                            onClick={handleAlert}
+                            className={styles.premium_profile_message}
+                          >
+                            Message
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    ))
                 ) : (
                   <p style={{ color: "#888" }}>No premium profiles found</p>
                 ))}

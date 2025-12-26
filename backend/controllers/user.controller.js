@@ -280,43 +280,86 @@ export const downloadResume = async (req, res) => {
 
 //* =============== Sending Connection Request =============== *//
 export const sendConnectionRequest = async (req, res) => {
-  const { token, connectionId } = req.body;
-
   try {
-    const user = await User.findOne({ token: token });
-    if (!user) return res.status(404).json({ message: "user not found!" });
+    const { token, connectionId } = req.body;
 
-    const connectionUser = await User.findOne({ _id: connectionId });
+    if (!token || !connectionId) {
+      return res.status(400).json({
+        success: false,
+        message: "Token and connectionId are required!",
+      });
+    }
+
+    const user = await User.findOne({ token: token });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found!",
+      });
+    }
+
+    const connectionUser = await User.findById(connectionId);
     if (!connectionUser) {
-      return res.status(404).json({ message: "Connection User not found!" });
+      return res.status(404).json({
+        success: false,
+        message: "Connection user not found!",
+      });
     }
 
     const existingRequest = await ConnectionRequest.findOne({
-      userId: user._id,
-      connectionId: connectionUser._id,
+      $or: [
+        { userId: user._id, connectionId: connectionUser._id },
+        { userId: connectionUser._id, connectionId: user._id },
+      ],
     });
 
     if (existingRequest) {
-      return res.status(404).json({ message: "Request already send!" });
+      return res.status(409).json({
+        success: false,
+        message: "Connection request already exists!",
+      });
     }
 
-    const Request = new ConnectionRequest({
-      userId: user._id,
-      connectionId: connectionUser._id,
+    const existingConnection = await ConnectionRequest.findOne({
+      $or: [
+        { userId: user._id, connectionId: connectionUser._id },
+        { userId: connectionUser._id, connectionId: user._id },
+      ],
     });
 
-    await Request.save();
+    if (existingConnection) {
+      return res.status(409).json({
+        success: false,
+        message: "Already connected!",
+      });
+    }
 
-    return res.json({ message: "Request sent" });
+    const newRequest = new ConnectionRequest({
+      userId: user._id,
+      connectionId: connectionUser._id,
+      status: "pending",
+      createdAt: new Date(),
+    });
+
+    await newRequest.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Connection request sent successfully!",
+      requestId: newRequest._id,
+    });
   } catch (err) {
-    console.log("Error while Sending Connection Request! ", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    console.error("Error sending connection request:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error!",
+    });
   }
 };
 
 //* =============== Getting My Connection Request =============== *//
 export const getMyConnectionRequest = async (req, res) => {
-  const { token } = req.body;
+  const { token } = req.query;
 
   try {
     const user = await User.findOne({ token: token });

@@ -1,4 +1,3 @@
-import DashboardLayout from "@/layout/DashboardLayout";
 import UserLayout from "@/layout/userLayout";
 import { BASE_URL, clientServer } from "@/config";
 import styles from "./style.module.css";
@@ -10,10 +9,12 @@ import {
   sendConnectionRequest,
 } from "@/config/redux/action/authAction";
 import { useRouter } from "next/router";
+import { getAllPosts } from "@/config/redux/action/postAction";
 
 export default function ViewProfile({ userProfile }) {
   const [uploadBackgroundPic, setuploadBackgroundPic] = useState(false);
-  const [fileContent, setFileContent] = useState(null);
+  const [hasSentRequest, setHasSentRequest] = useState(false);
+
   const [userPost, setUserPost] = useState([]);
   const [isCurrentUserInConnection, setIsCurrentUserInConnection] =
     useState(false);
@@ -26,8 +27,10 @@ export default function ViewProfile({ userProfile }) {
 
   // getting User Post
   const getUserPost = async () => {
-    await dispatch(getAllUsers());
-    await getConnectionRequest({ token: localStorage.getItem("token") });
+    await dispatch(getAllPosts());
+    await dispatch(
+      getConnectionRequest({ token: localStorage.getItem("token") })
+    );
   };
 
   useEffect(() => {
@@ -39,16 +42,20 @@ export default function ViewProfile({ userProfile }) {
   }, [postState.posts]);
 
   useEffect(() => {
-    console.log(authState.connections, userProfile.userId._id);
+    if (!authState.connections || !userProfile?.userId?._id) return;
 
-    if (
-      authState.connections.some(
-        (user) => user.connectionId._id === userProfile.userId._id
-      )
-    ) {
+    const connection = authState.connections.find(
+      (c) => c.connectionId?._id === userProfile.userId._id
+    );
+
+    if (connection) {
       setIsCurrentUserInConnection(true);
+
+      if (!connection.status_accepted) {
+        setHasSentRequest(true);
+      }
     }
-  }, [authState.connections]);
+  }, [authState.connections, userProfile]);
 
   // Getting all users
   useEffect(() => {
@@ -67,6 +74,8 @@ export default function ViewProfile({ userProfile }) {
       `🚧 This feature is currently under development  We’re writing clean code & fixing bugs. Stay tuned.`
     );
   };
+
+  const isOwnProfile = authState.user?.userId?._id === userProfile?.userId?._id;
   return (
     <UserLayout>
       <div className={styles.conteiner}>
@@ -159,21 +168,34 @@ export default function ViewProfile({ userProfile }) {
                 </div>
 
                 <div className={styles.connection_request}>
-                  {isCurrentUserInConnection ? (
+                  {isOwnProfile ? (
+                    <button className={styles.editProfileBtn}>Open to</button>
+                  ) : isCurrentUserInConnection && !hasSentRequest ? (
                     <button className={styles.connectedBtn}>Connected</button>
+                  ) : hasSentRequest ? (
+                    <button className={styles.pendingBtn}>Pending...</button>
                   ) : (
                     <button
-                      onClick={() => {
-                        dispatch(
+                      onClick={async () => {
+                        await dispatch(
                           sendConnectionRequest({
                             token: localStorage.getItem("token"),
-                            user_id,
+                            user_id: userProfile.userId._id,
+                          })
+                        );
+
+                        setIsCurrentUserInConnection(true);
+                        setHasSentRequest(true);
+
+                        dispatch(
+                          getConnectionRequest({
+                            token: localStorage.getItem("token"),
                           })
                         );
                       }}
                       className={styles.connectBtn}
                     >
-                      connect
+                      Connect
                     </button>
                   )}
                 </div>

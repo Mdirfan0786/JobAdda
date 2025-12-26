@@ -88,6 +88,10 @@ export const sendConnectionRequest = createAsyncThunk(
         }
       );
 
+      console.log("request Send Successfully!");
+
+      thunkAPI.dispatch(getConnectionRequest({ token: user.token }));
+
       return thunkAPI.fulfillWithValue(response.data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response.data.message);
@@ -108,6 +112,8 @@ export const getConnectionRequest = createAsyncThunk(
           },
         }
       );
+
+      return thunkAPI.fulfillWithValue(response.data.connections);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response.data.message);
     }
@@ -124,6 +130,7 @@ export const getMyConnectionRequest = createAsyncThunk(
           token: user.token,
         },
       });
+      return thunkAPI.fulfillWithValue(response.data.connections);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response.data.message);
     }
@@ -143,6 +150,8 @@ export const acceptConnectionRequest = createAsyncThunk(
           action_type: user.action,
         }
       );
+
+      return thunkAPI.fulfillWithValue(response.data);
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response.data.message);
     }

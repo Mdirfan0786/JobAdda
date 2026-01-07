@@ -15,6 +15,12 @@
   flex: 0.75;
 }
 
+.profile_left_wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
 .profile_left_details_container {
   min-height: 80vh;
   background-color: #fff;
@@ -234,4 +240,22 @@
 .Explore_job_adda > p::selection {
   background: transparent;
   color: inherit;
+}
+
+/* Work History */
+.work_history {
+  background: #fff;
+  border-radius: 0.5rem;
+  min-height: 35vh;
+  padding-inline: 1rem;
+  padding-block: 0.8rem;
+}
+
+.work_history_Card {
+  margin-top: 1rem;
+  padding-inline: 1.4rem;
+  padding-block: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 10px 10px 15px rgb(173, 173, 173);
 }

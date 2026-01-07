@@ -14,6 +14,8 @@ export default function DashboardLayout({ children }) {
 
   //   checking token available
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -22,7 +24,7 @@ export default function DashboardLayout({ children }) {
     }
 
     Dispatch(setTokenIsThere());
-  }, []);
+  }, [Dispatch, router]);
 
   // Alert
   const handleAlert = () => {

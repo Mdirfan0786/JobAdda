@@ -1,59 +1,76 @@
 import { Router } from "express";
-import {
-  acceptConnectionRequest,
-  downloadResume,
-  getAllUserProfile,
-  getMyConnectionRequest,
-  getUserAndProfile,
-  getUserDetailsBasedOnUsername,
-  Login,
-  register,
-  sendConnectionRequest,
-  updateUserProfile,
-  uploadingBackgroundPicture,
-  uploadProfilePicture,
-  userUpdateProfile,
-  WhatAreMyConnection,
-} from "../controllers/user.controller.js";
 import multer from "multer";
+import {
+  register,
+  Login,
+  uploadProfilePicture,
+  uploadingBackgroundPicture,
+  userUpdateProfile,
+  getUserAndProfile,
+  updateUserProfile,
+  getAllUserProfile,
+  downloadResume,
+  sendConnectionRequest,
+  getSentRequests,
+  getReceivedRequests,
+  getConnections,
+  acceptConnectionRequest,
+  getUserDetailsBasedOnUsername,
+} from "../controllers/user.controller.js";
 
 const router = Router();
 
+// ================= MULTER =================
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, file.originalname),
 });
+const upload = multer({ storage });
 
-const upload = multer({ storage: storage });
+// ================= AUTH =================
+router.post("/register", register);
+router.post("/login", Login);
 
+// ================= PROFILE =================
 router.post(
   "/upload_profile_picture",
   upload.single("profile_picture"),
   uploadProfilePicture
 );
+
 router.post(
   "/upload_profile_background_picture",
   upload.single("profile_background_picture"),
   uploadingBackgroundPicture
 );
-router.post("/register", register);
-router.post("/login", Login);
+
 router.patch("/user_update", userUpdateProfile);
-router.get("/get_user_and_profile", getUserAndProfile);
 router.put("/update_user_profile", updateUserProfile);
-router.get("/user/get_all_users", getAllUserProfile);
-router.get("/user/download_resume", downloadResume);
-router.post("/user/send_connection_request", sendConnectionRequest);
-router.get("/user/get_my_connection_request", getMyConnectionRequest);
-router.get("/user/user_connection_request", WhatAreMyConnection);
-router.get("/user/accept_connection_request", acceptConnectionRequest);
+router.get("/get_user_and_profile", getUserAndProfile);
 router.get(
   "/user/get_Profile_based_on_username/:username",
   getUserDetailsBasedOnUsername
 );
+
+// ================= USERS =================
+router.get("/user/get_all_users", getAllUserProfile);
+router.get("/user/download_resume", downloadResume);
+
+// ================= CONNECTION SYSTEM =================
+
+// send request
+router.post("/user/send_connection_request", sendConnectionRequest);
+
+// sent (outgoing)
+router.get("/user/sent_requests", getSentRequests);
+
+// received (incoming)
+router.get("/user/received_requests", getReceivedRequests);
+
+// accepted connections
+router.get("/user/connections", getConnections);
+
+// accept / reject
+router.post("/user/accept_connection_request", acceptConnectionRequest);
 
 export default router;

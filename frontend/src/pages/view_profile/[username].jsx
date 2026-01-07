@@ -5,33 +5,59 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import {
   getAllUsers,
-  getConnectionRequest,
   sendConnectionRequest,
+  getSentRequests,
+  getReceivedRequests,
+  getConnections,
+  acceptConnectionRequest,
 } from "@/config/redux/action/authAction";
+
 import { useRouter } from "next/router";
 import { getAllPosts } from "@/config/redux/action/postAction";
 
 export default function ViewProfile({ userProfile }) {
-  const [uploadBackgroundPic, setuploadBackgroundPic] = useState(false);
-  const [hasSentRequest, setHasSentRequest] = useState(false);
-
-  const [userPost, setUserPost] = useState([]);
-  const [isCurrentUserInConnection, setIsCurrentUserInConnection] =
-    useState(false);
-
   const authState = useSelector((state) => state.auth);
   const postState = useSelector((state) => state.posts);
+
+  const [userPost, setUserPost] = useState([]);
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [localPending, setLocalPending] = useState(false);
 
   const dispatch = useDispatch();
   const router = useRouter();
 
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
   // getting User Post
   const getUserPost = async () => {
     await dispatch(getAllPosts());
-    await dispatch(
-      getConnectionRequest({ token: localStorage.getItem("token") })
-    );
   };
+
+  const profileUserId = userProfile?.userId?._id;
+
+  const isConnected = authState.connections.some(
+    (c) =>
+      c.userId?._id === profileUserId || c.connectionId?._id === profileUserId
+  );
+
+  const isSent = authState.sentRequests.some(
+    (r) => r.connectionId?._id === profileUserId
+  );
+
+  const finalIsSent = isSent || localPending;
+
+  const isReceived = authState.receivedRequests.some(
+    (r) => r.userId?._id === profileUserId
+  );
+
+  useEffect(() => {
+    if (!token) return;
+
+    dispatch(getSentRequests(token));
+    dispatch(getReceivedRequests(token));
+    dispatch(getConnections(token));
+  }, [token, router.query.username, dispatch]);
 
   useEffect(() => {
     let post = postState.posts.filter((post) => {
@@ -41,22 +67,6 @@ export default function ViewProfile({ userProfile }) {
     setUserPost(post);
   }, [postState.posts]);
 
-  useEffect(() => {
-    if (!authState.connections || !userProfile?.userId?._id) return;
-
-    const connection = authState.connections.find(
-      (c) => c.connectionId?._id === userProfile.userId._id
-    );
-
-    if (connection) {
-      setIsCurrentUserInConnection(true);
-
-      if (!connection.status_accepted) {
-        setHasSentRequest(true);
-      }
-    }
-  }, [authState.connections, userProfile]);
-
   // Getting all users
   useEffect(() => {
     if (!authState.all_profile_fetched) {
@@ -65,8 +75,10 @@ export default function ViewProfile({ userProfile }) {
   }, [authState.all_profile_fetched, dispatch]);
 
   useEffect(() => {
-    getUserPost();
-  }, []);
+    if (router.query.username) {
+      getUserPost();
+    }
+  }, [router.query.username]);
 
   // Alert
   const handleAlert = () => {
@@ -170,32 +182,67 @@ export default function ViewProfile({ userProfile }) {
                 <div className={styles.connection_request}>
                   {isOwnProfile ? (
                     <button className={styles.editProfileBtn}>Open to</button>
-                  ) : isCurrentUserInConnection && !hasSentRequest ? (
-                    <button className={styles.connectedBtn}>Connected</button>
-                  ) : hasSentRequest ? (
-                    <button className={styles.pendingBtn}>Pending...</button>
+                  ) : isConnected ? (
+                    <button className={styles.connectedBtn} disabled>
+                      Connected
+                    </button>
+                  ) : finalIsSent ? (
+                    <button className={styles.pendingBtn} disabled>
+                      Pending...
+                    </button>
+                  ) : isReceived ? (
+                    <button
+                      className={styles.connectBtn}
+                      disabled={isRequesting}
+                      onClick={async () => {
+                        if (isRequesting) return;
+                        if (!token) return;
+
+                        setIsRequesting(true);
+
+                        try {
+                          await dispatch(
+                            acceptConnectionRequest({
+                              token,
+                              requestId: authState.receivedRequests.find(
+                                (r) => r.userId?._id === profileUserId
+                              )?._id,
+                              action_type: "accept",
+                            })
+                          );
+                        } finally {
+                          setIsRequesting(false);
+                        }
+                      }}
+                    >
+                      {isRequesting ? "Accepting..." : "Accept"}
+                    </button>
                   ) : (
                     <button
-                      onClick={async () => {
-                        await dispatch(
-                          sendConnectionRequest({
-                            token: localStorage.getItem("token"),
-                            user_id: userProfile.userId._id,
-                          })
-                        );
-
-                        setIsCurrentUserInConnection(true);
-                        setHasSentRequest(true);
-
-                        dispatch(
-                          getConnectionRequest({
-                            token: localStorage.getItem("token"),
-                          })
-                        );
-                      }}
                       className={styles.connectBtn}
+                      disabled={isRequesting}
+                      onClick={async () => {
+                        if (isRequesting) return;
+                        if (!token) return;
+
+                        setLocalPending(true);
+                        setIsRequesting(true);
+
+                        try {
+                          await dispatch(
+                            sendConnectionRequest({
+                              token,
+                              user_id: profileUserId,
+                            })
+                          );
+
+                          await dispatch(getSentRequests(token));
+                        } finally {
+                          setIsRequesting(false);
+                        }
+                      }}
                     >
-                      Connect
+                      {isRequesting ? "Sending..." : "Connect"}
                     </button>
                   )}
                 </div>
@@ -227,11 +274,12 @@ export default function ViewProfile({ userProfile }) {
                         className={styles.premium_Profiles_details}
                       >
                         <img
-                          onClick={() =>
-                            router.push(
+                          onClick={async () => {
+                            await router.replace(
                               `/view_profile/${profile.userId.username}`
-                            )
-                          }
+                            );
+                            window.location.reload();
+                          }}
                           className={styles.premium_profile_picture}
                           src={`${BASE_URL}/${profile.userId.profilePicture}`}
                           alt="profile Picture"
@@ -239,11 +287,12 @@ export default function ViewProfile({ userProfile }) {
 
                         <div className={styles.premium_profile_data}>
                           <p
-                            onClick={() =>
-                              router.push(
+                            onClick={async () => {
+                              await router.replace(
                                 `/view_profile/${profile.userId.username}`
-                              )
-                            }
+                              );
+                              window.location.reload();
+                            }}
                             style={{ fontWeight: "bold" }}
                           >
                             {profile.userId.name}

@@ -1,27 +1,31 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
-  getAboutUser,
-  getAllUsers,
-  getConnectionRequest,
-  getMyConnectionRequest,
   loginUser,
   registerUser,
+  getAboutUser,
+  getAllUsers,
   sendConnectionRequest,
+  getSentRequests,
+  getReceivedRequests,
+  getConnections,
+  acceptConnectionRequest,
 } from "../../action/authAction";
 
 const initialState = {
   user: null,
+  isLoading: false,
   isError: false,
   isSuccess: false,
-  isLoading: false,
   loggedIn: false,
-  isTokenThere: false,
   message: "",
+
   profileFetched: false,
-  connections: [],
-  connectionRequest: [],
   all_users: [],
   all_profile_fetched: false,
+
+  sentRequests: [],
+  receivedRequests: [],
+  connections: [],
 };
 
 const authSlice = createSlice({
@@ -29,7 +33,6 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     reset: () => initialState,
-
     handleLoginUser: (state) => {
       state.message = "hello";
     },
@@ -46,18 +49,15 @@ const authSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // LOGIN
+      // ================= LOGIN =================
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
-        state.message = "Knocking the door...";
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isError = false;
-        state.isSuccess = true;
         state.loggedIn = true;
-        state.user = action.payload.user;
-        state.message = "Login Successful";
+        state.isSuccess = true;
+        state.user = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -65,93 +65,66 @@ const authSlice = createSlice({
         state.message = action.payload;
       })
 
-      // REGISTER
+      // ================= REGISTER =================
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
-        state.message = "Registering you...";
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state) => {
         state.isLoading = false;
-        state.isError = false;
         state.isSuccess = true;
-        state.loggedIn = false;
-        state.message = {
-          message: "Registration Successful, Please Login",
-        };
+        state.message = "Registration successful, please login";
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload || "Something Went Wrong!";
+        state.message = action.payload;
       })
 
-      // handling User Details
+      // ================= USER PROFILE =================
       .addCase(getAboutUser.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isError = false;
         state.profileFetched = true;
         state.user = action.payload;
       })
 
-      // Fetching All users
+      // ================= ALL USERS =================
       .addCase(getAllUsers.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isError = false;
+        state.all_users = action.payload;
         state.all_profile_fetched = true;
-        state.all_users = action.payload.profile;
       })
 
-      // Getting Connection Request
-      .addCase(getConnectionRequest.fulfilled, (state, action) => {
-        if (Array.isArray(action.payload)) {
-          state.connections = action.payload;
-        } else if (action.payload?.connections) {
-          state.connections = action.payload.connections;
-        } else if (action.payload) {
-          state.connections = [action.payload];
-        } else {
-          state.connections = [];
-        }
-      })
-      .addCase(getConnectionRequest.rejected, (state, action) => {
-        state.message = action.payload;
-      })
-
-      // getting My Connection Requests
-      .addCase(getMyConnectionRequest.fulfilled, (state, action) => {
-        if (Array.isArray(action.payload)) {
-          state.connectionRequest = action.payload;
-        } else if (action.payload?.connectionRequest) {
-          state.connectionRequest = action.payload.connectionRequest;
-        } else if (action.payload) {
-          state.connectionRequest = [action.payload];
-        } else {
-          state.connectionRequest = [];
-        }
-      })
-      .addCase(getMyConnectionRequest.rejected, (state, action) => {
-        state.message = action.payload;
-      })
-
-      // SEND CONNECTION REQUEST
-      .addCase(sendConnectionRequest.pending, (state) => {
-        state.isLoading = true;
-        state.message = "Sending connection request...";
-      })
+      // ================= SEND CONNECTION =================
       .addCase(sendConnectionRequest.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.isError = false;
-        state.isSuccess = true;
-        state.message = action.payload.message || "Request sent successfully!";
+        state.message = action.payload?.message || "Request sent";
       })
       .addCase(sendConnectionRequest.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.message = action.payload || "Failed to send connection request";
+        state.message = action.payload;
+      })
+
+      // ================= SENT REQUESTS =================
+      .addCase(getSentRequests.fulfilled, (state, action) => {
+        state.sentRequests = action.payload;
+      })
+
+      // ================= RECEIVED REQUESTS =================
+      .addCase(getReceivedRequests.fulfilled, (state, action) => {
+        state.receivedRequests = action.payload;
+      })
+
+      // ================= CONNECTIONS =================
+      .addCase(getConnections.fulfilled, (state, action) => {
+        state.connections = action.payload;
+      })
+
+      // ================= ACCEPT / REJECT =================
+      .addCase(acceptConnectionRequest.fulfilled, (state) => {
+        state.message = "Request updated";
       });
   },
 });
 
-export const { reset, emptyMessage, setTokenNotThere, setTokenIsThere } =
+export const { reset, emptyMessage, setTokenIsThere, setTokenNotThere } =
   authSlice.actions;
+
 export default authSlice.reducer;

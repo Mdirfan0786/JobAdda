@@ -159,6 +159,10 @@
   background-color: #004182;
 }
 
+.downloadBtn > svg {
+  height: 1.5rem;
+}
+
 /* Profile right Container */
 
 .profile_container_right {

@@ -180,7 +180,14 @@ export default function ViewProfile({ userProfile }) {
                     ></p>
                   </div>
 
-                  <div className={styles.connection_request}>
+                  <div
+                    className={styles.connection_request}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "1.2rem",
+                    }}
+                  >
                     {isOwnProfile ? (
                       <button className={styles.editProfileBtn}>Open to</button>
                     ) : isConnected ? (
@@ -246,6 +253,39 @@ export default function ViewProfile({ userProfile }) {
                         {isRequesting ? "Sending..." : "Connect"}
                       </button>
                     )}
+
+                    <div
+                      onClick={async () => {
+                        const response = await clientServer.get(
+                          `/user/download_resume?id=${profileUserId}`
+                        );
+
+                        window.open(
+                          `${BASE_URL}/${response.data.message}`,
+                          "_blank"
+                        );
+                      }}
+                      className={styles.downloadBtn}
+                      style={{
+                        cursor: "pointer",
+                        marginTop: "1rem",
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2.5}
+                        stroke="currentColor"
+                        className="size-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+                        />
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>

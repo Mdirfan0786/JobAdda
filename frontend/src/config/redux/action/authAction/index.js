@@ -16,7 +16,7 @@ export const loginUser = createAsyncThunk(
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data || "Login failed");
     }
-  }
+  },
 );
 
 // ================= REGISTER =================
@@ -28,7 +28,7 @@ export const registerUser = createAsyncThunk(
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
 
 // ================= ABOUT USER =================
@@ -48,7 +48,7 @@ export const getAboutUser = createAsyncThunk(
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
 
 // ================= ALL USERS =================
@@ -61,7 +61,7 @@ export const getAllUsers = createAsyncThunk(
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
 
 // ================= SEND CONNECTION =================
@@ -69,10 +69,17 @@ export const sendConnectionRequest = createAsyncThunk(
   "user/sendConnectionRequest",
   async (user, thunkAPI) => {
     try {
-      const res = await clientServer.post("/user/send_connection_request", {
-        token: user.token,
-        connectionId: user.user_id,
-      });
+      const res = await clientServer.post(
+        "/user/send_connection_request",
+        {
+          connectionId: user.user_id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        },
+      );
 
       if (res.data.alreadySent) {
         alert("already sent");
@@ -83,67 +90,92 @@ export const sendConnectionRequest = createAsyncThunk(
     } catch (err) {
       return thunkAPI.rejectWithValue("Server error");
     }
-  }
+  },
 );
 
 // ================= SENT REQUESTS =================
 export const getSentRequests = createAsyncThunk(
   "user/getSentRequests",
-  async (token, thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
+      const token = localStorage.getItem("token");
+
       const res = await clientServer.get("/user/sent_requests", {
-        params: { token },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
 
 // ================= RECEIVED REQUESTS =================
 export const getReceivedRequests = createAsyncThunk(
   "user/getReceivedRequests",
-  async (token, thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
+      const token = localStorage.getItem("token");
+
       const res = await clientServer.get("/user/received_requests", {
-        params: { token },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
 
 // ================= CONNECTIONS =================
 export const getConnections = createAsyncThunk(
   "user/getConnections",
-  async (token, thunkAPI) => {
+  async (_, thunkAPI) => {
     try {
+      const token = localStorage.getItem("token");
+
       const res = await clientServer.get("/user/connections", {
-        params: { token },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
-  }
+  },
 );
 
 // ================= ACCEPT / REJECT =================
 export const acceptConnectionRequest = createAsyncThunk(
   "user/acceptConnectionRequest",
-  async ({ token, requestId, action }, thunkAPI) => {
+  async ({ requestId, action }, thunkAPI) => {
     try {
-      const res = await clientServer.post("/user/accept_connection_request", {
-        token,
-        requestId,
-        action_type: action,
-      });
+      const token = localStorage.getItem("token");
+
+      const res = await clientServer.post(
+        "/user/accept_connection_request",
+        {
+          requestId,
+          action,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }
-  }
+  },
 );

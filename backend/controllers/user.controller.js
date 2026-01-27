@@ -218,7 +218,7 @@ export const getUserAndProfile = async (req, res) => {
 
     const UserProfile = await Profile.findOne({ userId: user._id }).populate(
       "userId",
-      "name email username profilePicture profileBackgroundPicture"
+      "name email username profilePicture profileBackgroundPicture",
     );
 
     res.json(UserProfile);
@@ -252,7 +252,7 @@ export const getAllUserProfile = async (req, res) => {
   try {
     let profile = await Profile.find().populate(
       "userId",
-      "name username email profilePicture profileBackgroundPicture"
+      "name username email profilePicture profileBackgroundPicture",
     );
 
     profile = profile.filter((p) => p.userId !== null);
@@ -270,7 +270,7 @@ export const downloadResume = async (req, res) => {
 
   const userProfile = await Profile.findOne({ userId: user_id }).populate(
     "userId",
-    "name username email profilePicture"
+    "name username email profilePicture",
   );
 
   let outputPath = await convertUserDataTOPDF(userProfile);
@@ -280,13 +280,18 @@ export const downloadResume = async (req, res) => {
 
 //* =============== Sending Connection Request =============== *//
 export const sendConnectionRequest = async (req, res) => {
-  const { token, connectionId } = req.body;
-
   try {
-    const user = await User.findOne({ token });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(" ")[1] || authHeader;
+
+    if (!token) {
+      return res.status(401).json({ message: "Token missing" });
     }
+
+    const { connectionId } = req.body;
+
+    const user = await User.findOne({ token });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     if (String(user._id) === String(connectionId)) {
       return res.status(400).json({ message: "Cannot connect with yourself" });
@@ -300,11 +305,7 @@ export const sendConnectionRequest = async (req, res) => {
     });
 
     if (existingRequest) {
-      return res.status(200).json({
-        message: "Request already exists",
-        request: existingRequest,
-        alreadySent: true,
-      });
+      return res.json({ alreadySent: true, request: existingRequest });
     }
 
     const request = await ConnectionRequest.create({
@@ -313,23 +314,24 @@ export const sendConnectionRequest = async (req, res) => {
       status: "pending",
     });
 
-    return res.status(201).json({
-      message: "Request sent",
-      request,
-      alreadySent: false,
-    });
+    return res.status(201).json({ alreadySent: false, request });
   } catch (err) {
-    console.error("Error while Sending connections!", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    console.error("Send Connection Error:", err.message);
+    return res.status(500).json({ message: "Server Error" });
   }
 };
 
 //* =============== Getting send Request =============== *//
 export const getSentRequests = async (req, res) => {
-  const { token } = req.query;
-
   try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : authHeader;
+
     const user = await User.findOne({ token });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
     const requests = await ConnectionRequest.find({
       userId: user._id,
       status: "pending",
@@ -337,17 +339,20 @@ export const getSentRequests = async (req, res) => {
 
     res.json(requests);
   } catch (err) {
-    console.log("Error While Getting My Connection Request! ", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    console.error("Get Sent Requests Error:", err.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
 //* =============== get received Request =============== *//
 export const getReceivedRequests = async (req, res) => {
-  const { token } = req.query;
-
   try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(" ")[1] || authHeader;
+
     const user = await User.findOne({ token });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
     const requests = await ConnectionRequest.find({
       connectionId: user._id,
       status: "pending",
@@ -355,44 +360,56 @@ export const getReceivedRequests = async (req, res) => {
 
     res.json(requests);
   } catch (err) {
-    console.error(
-      "Error While knowing What Are My Connection Request! ",
-      err.message
-    );
-    return res.status(500).json({ message: "Server Error!" });
+    console.error("Get Received Requests Error:", err.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
 //* =============== get Connection Request =============== *//
 
 export const getConnections = async (req, res) => {
-  const { token } = req.query;
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(" ")[1] || authHeader;
 
-  const user = await User.findOne({ token });
+    const user = await User.findOne({ token });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-  const connections = await ConnectionRequest.find({
-    status: "accepted",
-    $or: [{ userId: user._id }, { connectionId: user._id }],
-  }).populate("userId connectionId", "name username profilePicture");
+    const connections = await ConnectionRequest.find({
+      status: "accepted",
+      $or: [{ userId: user._id }, { connectionId: user._id }],
+    }).populate("userId connectionId", "name username profilePicture");
 
-  res.json(connections);
+    res.json(connections);
+  } catch (err) {
+    console.error("Get Connections Error:", err.message);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
 //* =============== Accept Connection Request =============== *//
 export const acceptConnectionRequest = async (req, res) => {
-  const { token, requestId, action } = req.body;
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.split(" ")[1] || authHeader;
 
-  const user = await User.findOne({ token });
-  const connection = await ConnectionRequest.findById(requestId);
+    const { requestId, action } = req.body;
 
-  if (!connection) {
-    return res.status(404).json({ message: "Request not found" });
+    const user = await User.findOne({ token });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const connection = await ConnectionRequest.findById(requestId);
+    if (!connection)
+      return res.status(404).json({ message: "Request not found" });
+
+    connection.status = action === "accept" ? "accepted" : "rejected";
+    await connection.save();
+
+    res.json({ message: "Updated successfully" });
+  } catch (err) {
+    console.error("Accept Request Error:", err.message);
+    res.status(500).json({ message: "Server Error" });
   }
-
-  connection.status = action === "accept" ? "accepted" : "rejected";
-  await connection.save();
-
-  res.json({ message: "Updated successfully" });
 };
 
 //* =============== Get User Details Based On Username =============== *//
@@ -407,7 +424,7 @@ export const getUserDetailsBasedOnUsername = async (req, res) => {
 
     const userProfile = await Profile.findOne({ userId: user._id }).populate(
       "userId",
-      "name username email profilePicture profileBackgroundPicture"
+      "name username email profilePicture profileBackgroundPicture",
     );
 
     if (!userProfile) {

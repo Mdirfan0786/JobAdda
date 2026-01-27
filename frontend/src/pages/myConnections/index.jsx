@@ -1,8 +1,19 @@
+import {
+  getConnections,
+  getSentRequests,
+} from "@/config/redux/action/authAction";
 import DashboardLayout from "@/layout/DashboardLayout";
 import UserLayout from "@/layout/userLayout";
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
 
 export default function MyConnectionComponent() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getSentRequests());
+  }, []);
+
   return (
     <UserLayout>
       <DashboardLayout>

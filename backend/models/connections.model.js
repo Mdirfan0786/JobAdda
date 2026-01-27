@@ -9,15 +9,16 @@ const connectionRequestSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  status_accepted: {
-    type: Boolean,
-    default: null,
+  status: {
+    type: String,
+    enum: ["pending", "accepted", "rejected"],
+    default: "pending",
   },
 });
 
 const ConnectionRequest = mongoose.model(
   "ConnectionRequest",
-  connectionRequestSchema
+  connectionRequestSchema,
 );
 
 export default ConnectionRequest;

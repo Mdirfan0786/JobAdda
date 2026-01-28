@@ -10,6 +10,7 @@ import {
   getReceivedRequests,
   getConnections,
   acceptConnectionRequest,
+  getAboutUser,
 } from "@/config/redux/action/authAction";
 
 import { useRouter } from "next/router";
@@ -38,25 +39,25 @@ export default function ViewProfile({ userProfile }) {
 
   const isConnected = authState.connections.some(
     (c) =>
-      c.userId?._id === profileUserId || c.connectionId?._id === profileUserId
+      c.userId?._id === profileUserId || c.connectionId?._id === profileUserId,
   );
 
   const isSent = authState.sentRequests.some(
-    (r) => r.connectionId?._id === profileUserId
+    (r) => r.connectionId?._id === profileUserId,
   );
 
   const finalIsSent = isSent || localPending;
 
   const isReceived = authState.receivedRequests.some(
-    (r) => r.userId?._id === profileUserId
+    (r) => r.userId?._id === profileUserId,
   );
 
   useEffect(() => {
     if (!token) return;
 
-    dispatch(getSentRequests(token));
-    dispatch(getReceivedRequests(token));
-    dispatch(getConnections(token));
+    dispatch(getSentRequests());
+    dispatch(getReceivedRequests());
+    dispatch(getConnections());
   }, [token, router.query.username, dispatch]);
 
   useEffect(() => {
@@ -83,8 +84,28 @@ export default function ViewProfile({ userProfile }) {
   // Alert
   const handleAlert = () => {
     alert(
-      `🚧 This feature is currently under development  We’re writing clean code & fixing bugs. Stay tuned.`
+      `🚧 This feature is currently under development  We’re writing clean code & fixing bugs. Stay tuned.`,
     );
+  };
+  const handleBackgroundPicUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const formData = new FormData();
+    formData.append("profile_background_picture", file);
+    formData.append("token", token);
+
+    try {
+      await clientServer.post("/upload_profile_background_picture", formData);
+
+      dispatch(getAboutUser());
+    } catch (err) {
+      console.error("Background upload failed", err);
+      alert("Background upload failed");
+    }
   };
 
   const isOwnProfile = authState.user?.userId?._id === userProfile?.userId?._id;
@@ -101,30 +122,43 @@ export default function ViewProfile({ userProfile }) {
                     alt="background Picture"
                   />
 
-                  <div
-                    onClick={() => setuploadBackgroundPic(true)}
-                    className={styles.backgroundPic_edit}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth={1.5}
-                      stroke="currentColor"
-                      className="size-6"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"
+                  {isOwnProfile && (
+                    <>
+                      <div
+                        onClick={() =>
+                          document.getElementById("backgroundPicInput").click()
+                        }
+                        className={styles.backgroundPic_edit}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="size-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"
+                          />
+                        </svg>
+                      </div>
+                      <input
+                        type="file"
+                        id="backgroundPicInput"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={handleBackgroundPicUpload}
                       />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"
-                      />
-                    </svg>
-                  </div>
+                    </>
+                  )}
 
                   <div className={styles.profile_pic}>
                     <img
@@ -213,10 +247,10 @@ export default function ViewProfile({ userProfile }) {
                               acceptConnectionRequest({
                                 token,
                                 requestId: authState.receivedRequests.find(
-                                  (r) => r.userId?._id === profileUserId
+                                  (r) => r.userId?._id === profileUserId,
                                 )?._id,
-                                action_type: "accept",
-                              })
+                                action: "accept",
+                              }),
                             );
                           } finally {
                             setIsRequesting(false);
@@ -241,7 +275,7 @@ export default function ViewProfile({ userProfile }) {
                               sendConnectionRequest({
                                 token,
                                 user_id: profileUserId,
-                              })
+                              }),
                             );
 
                             await dispatch(getSentRequests(token));
@@ -257,12 +291,12 @@ export default function ViewProfile({ userProfile }) {
                     <div
                       onClick={async () => {
                         const response = await clientServer.get(
-                          `/user/download_resume?id=${profileUserId}`
+                          `/user/download_resume?id=${profileUserId}`,
                         );
 
                         window.open(
                           `${BASE_URL}/${response.data.message}`,
-                          "_blank"
+                          "_blank",
                         );
                       }}
                       className={styles.downloadBtn}
@@ -334,7 +368,7 @@ export default function ViewProfile({ userProfile }) {
                   authState.all_users
                     .filter(
                       (profile) =>
-                        profile.userId._id !== authState.user?.userId?._id
+                        profile.userId._id !== authState.user?.userId?._id,
                     )
                     .map((profile) => (
                       <div
@@ -343,10 +377,9 @@ export default function ViewProfile({ userProfile }) {
                       >
                         <img
                           onClick={async () => {
-                            await router.replace(
-                              `/view_profile/${profile.userId.username}`
+                            await router.push(
+                              `/view_profile/${profile.userId.username}`,
                             );
-                            window.location.reload();
                           }}
                           className={styles.premium_profile_picture}
                           src={`${BASE_URL}/${profile.userId.profilePicture}`}
@@ -356,10 +389,9 @@ export default function ViewProfile({ userProfile }) {
                         <div className={styles.premium_profile_data}>
                           <p
                             onClick={async () => {
-                              await router.replace(
-                                `/view_profile/${profile.userId.username}`
+                              await router.push(
+                                `/view_profile/${profile.userId.username}`,
                               );
-                              window.location.reload();
                             }}
                             style={{ fontWeight: "bold" }}
                           >
@@ -420,7 +452,7 @@ export const getServerSideProps = async (context) => {
       `/user/get_Profile_based_on_username/${username}`,
       {
         params: { username },
-      }
+      },
     );
 
     return {

@@ -159,6 +159,8 @@ export const acceptConnectionRequest = createAsyncThunk(
   async ({ requestId, action }, thunkAPI) => {
     try {
       const token = localStorage.getItem("token");
+      console.log("req:", requestId);
+      console.log("action:", action);
 
       const res = await clientServer.post(
         "/user/accept_connection_request",

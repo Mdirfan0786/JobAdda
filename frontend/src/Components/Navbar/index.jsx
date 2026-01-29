@@ -25,7 +25,7 @@ function NavbarComponent() {
 
   const handleProfileNav = () => {
     if (profileRoutes.includes(router.pathname)) {
-      router.push(`/view_profile/${authState.user.userId.username}`);
+      router.push(`/profile/${authState.user.userId.username}`);
     } else {
       router.push("/dashboard");
     }

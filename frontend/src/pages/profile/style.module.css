@@ -118,6 +118,79 @@
   background-color: #ebf4fd;
 }
 
+/* Profile Update btn */
+
+.updateProfile_backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+}
+
+.updateProfile_details {
+  position: fixed;
+  padding: 1.2rem;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40vw;
+  min-height: 70vh;
+  background: #fff;
+  border-radius: 0.5rem;
+  z-index: 1000;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.profilDetails > input {
+  padding-inline: 1.5rem;
+  padding-block: 0.9rem;
+  outline: none;
+  border-radius: 0.3rem;
+  margin-block: 0.2rem;
+  width: 100%;
+  border: 0.093rem solid #d0d0d0;
+  transition: 0.2s;
+}
+
+.profilDetails > textarea {
+  width: 100%;
+  height: 15vh;
+  border: 1px solid #dfdeda;
+  border-radius: 0.3rem;
+  font-family: Arial, Helvetica, sans-serif;
+  padding-inline: 1rem;
+  padding-block: 0.8rem;
+  margin-block: 0.2rem;
+  outline: none;
+  color: #191919;
+  resize: none;
+}
+
+.saveBtn {
+  position: absolute;
+  right: 3%;
+  bottom: 8%;
+  border: none;
+  cursor: pointer;
+  background-color: #378fe9;
+  color: #fff;
+  font-size: 0.8rem;
+  border-radius: 1.5rem;
+  padding-inline: 2rem;
+  padding-block: 0.4rem;
+}
+
+.saveBtn:hover {
+  background-color: #004182;
+}
+
+/* Work History */
+
+.work_history_head {
+  display: flex;
+  justify-content: space-between;
+}
+
 /* background left edit btn */
 
 .backgroundPic_edit > svg {
@@ -131,6 +204,30 @@
   padding-block: 0.5rem;
   border-radius: 100%;
   cursor: pointer;
+}
+
+.work_history_head {
+  margin-bottom: 0.8rem;
+}
+
+.work_history_edit > svg {
+  height: 2.5rem;
+  padding-inline: 0.5rem;
+  padding-block: 0.5rem;
+  border-radius: 100%;
+  color: #0a66c2;
+  cursor: pointer;
+}
+
+.work_history_edit > svg:hover {
+  background-color: #ebf4fd;
+}
+
+.selectYr {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-right: 0.5rem;
 }
 
 /* connected Btn */

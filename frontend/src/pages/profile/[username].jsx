@@ -17,12 +17,55 @@ import { resetPostId } from "@/config/redux/reducers/postReducer";
 
 export default function ProfileComponent() {
   const [commentText, setCommentText] = useState("");
+  const [showUpdateProfile, setShowUpdateProfile] = useState(false);
+  const [showUpdateWork, setShowUpdateWork] = useState(false);
 
   const PostState = useSelector((state) => state.posts);
   const authState = useSelector((state) => state.auth);
+  const userProfile = authState.user;
+
+  // user Profile Updation
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
+  const [currentPost, setCurrentPost] = useState("");
+
+  // user Work Updation
+  const [company, setCompany] = useState("");
+  const [position, setPosition] = useState("");
+
+  const [fromYear, setFromYear] = useState("");
+  const [toYear, setToYear] = useState("");
 
   const router = useRouter();
   const dispatch = useDispatch();
+
+  // user Profile Updation logic
+  useEffect(() => {
+    if (showUpdateProfile && userProfile?.userId?.name) {
+      setName(userProfile.userId.name);
+      setBio(userProfile.bio);
+      setCurrentPost(userProfile.currentPost);
+    }
+  }, [showUpdateProfile, userProfile]);
+
+  // user work Updation logic
+  useEffect(() => {
+    if (showUpdateWork && userProfile?.pastWork?.length > 0) {
+      const work = userProfile.pastWork[0];
+
+      setCompany(work.company || "");
+      setPosition(work.position || "");
+
+      if (work.years) {
+        const [from, to] = work.years.split(" - ");
+        setFromYear(from || "");
+        setToYear(to || "");
+      } else {
+        setFromYear("");
+        setToYear("");
+      }
+    }
+  }, [showUpdateWork, userProfile]);
 
   //Fetching posts user details only when token is confirmed
   useEffect(() => {
@@ -33,12 +76,6 @@ export default function ProfileComponent() {
       dispatch(getAboutUser({ token }));
     }
   }, [dispatch]);
-
-  useEffect(() => {
-    if (!authState.all_profile_fetched) {
-      dispatch(getAllUsers());
-    }
-  }, [authState.all_profile_fetched, dispatch]);
 
   // handling Delete Post functionality
   const handleDelete = async (postId) => {
@@ -129,7 +166,7 @@ export default function ProfileComponent() {
     try {
       await clientServer.post("/upload_profile_background_picture", formData);
 
-      dispatch(getAboutUser());
+      dispatch(getAboutUser({ token }));
     } catch (err) {
       console.error("Background upload failed", err);
       alert("Background upload failed");
@@ -150,14 +187,60 @@ export default function ProfileComponent() {
     try {
       await clientServer.post("/upload_profile_picture", formData);
 
-      dispatch(getAboutUser());
+      dispatch(getAboutUser({ token }));
     } catch (err) {
       console.error("Background upload failed", err);
       alert("Background upload failed");
     }
   };
 
-  const userProfile = authState.user;
+  // updating user Profile Details
+
+  const handleUpdateProfile = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      await clientServer.patch("/user_update", {
+        token,
+        name,
+      });
+      await clientServer.put("/update_user_profile", {
+        token,
+        bio,
+        currentPost,
+      });
+
+      dispatch(getAboutUser({ token }));
+      setShowUpdateProfile(false);
+    } catch (err) {
+      console.error("Failed during user details Updation!");
+    }
+  };
+
+  // updating user Work Details
+  const handleUpdateWork = async () => {
+    const token = localStorage.getItem("token");
+
+    const yearsValue = fromYear && toYear ? `${fromYear} - ${toYear}` : "";
+
+    try {
+      await clientServer.put("/update_user_profile", {
+        token,
+        pastWork: [
+          {
+            company,
+            position,
+            years: yearsValue,
+          },
+        ],
+      });
+
+      dispatch(getAboutUser({ token }));
+      setShowUpdateWork(false);
+    } catch (err) {
+      console.error("Failed during user work details Updation!");
+    }
+  };
 
   // Own prifile
   const isOwnProfile = authState.user?.userId?._id === userProfile?.userId?._id;
@@ -275,6 +358,7 @@ export default function ProfileComponent() {
                           strokeWidth={1.5}
                           stroke="currentColor"
                           className="size-6"
+                          onClick={() => setShowUpdateProfile(true)}
                         >
                           <path
                             strokeLinecap="round"
@@ -284,6 +368,91 @@ export default function ProfileComponent() {
                         </svg>
                       </div>
                     </div>
+
+                    {showUpdateProfile && (
+                      <>
+                        <div
+                          className={styles.updateProfile_backdrop}
+                          onClick={() => setShowUpdateProfile(false)}
+                        />
+
+                        <div className={styles.updateProfile_details}>
+                          <div
+                            style={{
+                              borderBottom: "1px solid #d0d0d0",
+                              paddingBottom: "1rem",
+                            }}
+                          >
+                            <p
+                              style={{
+                                color: "#191919",
+                                fontWeight: "bold",
+                                fontSize: "1.3rem",
+                              }}
+                            >
+                              Edit Profile Details
+                            </p>
+                          </div>
+
+                          <div className={styles.profilDetails}>
+                            <p style={{ marginTop: "1rem", color: "#404040" }}>
+                              Name :{" "}
+                            </p>
+
+                            <input
+                              type="text"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              placeholder="Enter your name"
+                            />
+                          </div>
+
+                          <div className={styles.profilDetails}>
+                            <p style={{ marginTop: "1rem", color: "#404040" }}>
+                              Bio :{" "}
+                            </p>
+
+                            <textarea
+                              type="text"
+                              value={bio}
+                              onChange={(e) => setBio(e.target.value)}
+                              placeholder="bio"
+                              maxLength={100}
+                            />
+
+                            <p
+                              style={{
+                                color: "#c5c3bd",
+                                fontSize: "0.7rem",
+                                marginLeft: "0.2rem",
+                              }}
+                            >
+                              {bio.length}/120
+                            </p>
+                          </div>
+
+                          <div className={styles.profilDetails}>
+                            <p style={{ marginTop: "1rem", color: "#404040" }}>
+                              Current Post :{" "}
+                            </p>
+
+                            <input
+                              type="text"
+                              value={currentPost}
+                              onChange={(e) => setCurrentPost(e.target.value)}
+                              placeholder="currentPost"
+                            />
+                          </div>
+
+                          <button
+                            className={styles.saveBtn}
+                            onClick={handleUpdateProfile}
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </>
+                    )}
 
                     <div className={styles.profile_username}>
                       <p
@@ -392,7 +561,26 @@ export default function ProfileComponent() {
 
                 {/* Work history */}
                 <div className={styles.work_history}>
-                  <h1>Work history</h1>
+                  <div className={styles.work_history_head}>
+                    <h1>Work history</h1>
+                    <div className={styles.work_history_edit}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="size-6"
+                        onClick={() => setShowUpdateWork(true)}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                        />
+                      </svg>
+                    </div>
+                  </div>
 
                   <div className={styles.work_history_container}>
                     {userProfile?.pastWork &&
@@ -419,6 +607,126 @@ export default function ProfileComponent() {
                     )}
                   </div>
                 </div>
+
+                {showUpdateWork && (
+                  <>
+                    <div
+                      className={styles.updateProfile_backdrop}
+                      onClick={() => setShowUpdateWork(false)}
+                    />
+
+                    <div className={styles.updateProfile_details}>
+                      <div
+                        style={{
+                          borderBottom: "1px solid #d0d0d0",
+                          paddingBottom: "1rem",
+                        }}
+                      >
+                        <p
+                          style={{
+                            color: "#191919",
+                            fontWeight: "bold",
+                            fontSize: "1.3rem",
+                          }}
+                        >
+                          Edit Work Details
+                        </p>
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          Company :{" "}
+                        </p>
+
+                        <input
+                          type="text"
+                          value={company}
+                          onChange={(e) => setCompany(e.target.value)}
+                          placeholder="Company"
+                        />
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          position :{" "}
+                        </p>
+
+                        <textarea
+                          type="text"
+                          value={position}
+                          onChange={(e) => setPosition(e.target.value)}
+                          placeholder="Position"
+                          maxLength={100}
+                        />
+
+                        <p
+                          style={{
+                            color: "#c5c3bd",
+                            fontSize: "0.7rem",
+                            marginLeft: "0.2rem",
+                          }}
+                        >
+                          {bio.length}/120
+                        </p>
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          Years :
+                        </p>
+
+                        {/* FROM YEAR */}
+                        <select
+                          className={styles.selectYr}
+                          value={fromYear}
+                          onChange={(e) => {
+                            setFromYear(Number(e.target.value));
+                            setToYear("");
+                          }}
+                        >
+                          <option value="">From</option>
+                          {Array.from({ length: 30 }, (_, i) => 1995 + i).map(
+                            (year) => (
+                              <option key={year} value={year}>
+                                {year}
+                              </option>
+                            ),
+                          )}
+                        </select>
+
+                        {/* TO YEAR */}
+                        <select
+                          className={styles.selectYr}
+                          value={toYear}
+                          onChange={(e) => setToYear(e.target.value)}
+                          disabled={!fromYear}
+                        >
+                          <option value="">To</option>
+                          <option value="Present">Present</option>
+
+                          {fromYear &&
+                            Array.from(
+                              {
+                                length: new Date().getFullYear() - fromYear + 1,
+                              },
+                              (_, i) => fromYear + i,
+                            ).map((year) => (
+                              <option key={year} value={year}>
+                                {year}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+
+                      <button
+                        className={styles.saveBtn}
+                        onClick={handleUpdateWork}
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </>
+                )}
 
                 {/* All Posts */}
                 <div className={styles.Dashboard_component}>

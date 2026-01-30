@@ -47,7 +47,7 @@ function DashboardComponent() {
   const handlePost = async () => {
     try {
       await dispatch(
-        CreatePost({ file: fileContent, body: postContent })
+        CreatePost({ file: fileContent, body: postContent }),
       ).unwrap();
 
       setPostContent("");
@@ -61,13 +61,13 @@ function DashboardComponent() {
   // handling Delete Post functionality
   const handleDelete = async (postId) => {
     const isConfirmed = window.confirm(
-      "Are you sure you want to delete this post?"
+      "Are you sure you want to delete this post?",
     );
 
     if (!isConfirmed) return;
 
     await dispatch(
-      deletePost({ token: localStorage.getItem("token"), post_id: postId })
+      deletePost({ token: localStorage.getItem("token"), post_id: postId }),
     );
 
     await dispatch(getAllPosts());
@@ -76,7 +76,7 @@ function DashboardComponent() {
   // handling Delete Comment functionality
   const handleDeleteComment = async (commentId) => {
     const isConfirmed = window.confirm(
-      "Are you sure you want to delete this comment?"
+      "Are you sure you want to delete this comment?",
     );
 
     if (!isConfirmed) return;
@@ -118,10 +118,21 @@ function DashboardComponent() {
     dispatch(getAllComments({ post_id: post._id }));
   };
 
+  // handling profile navigation
+  const handleProfileNavigation = (postUser) => {
+    const loggedInUserId = authState.user?.userId?._id;
+
+    if (postUser?._id === loggedInUserId) {
+      router.push(`/profile/${postUser.username}`);
+    } else {
+      router.push(`/view_profile/${postUser.username}`);
+    }
+  };
+
   // Alert
   const handleAlert = () => {
     alert(
-      `🚧 This feature is currently under development  We’re writing clean code & fixing bugs. Stay tuned.`
+      `🚧 This feature is currently under development  We’re writing clean code & fixing bugs. Stay tuned.`,
     );
   };
 
@@ -189,9 +200,7 @@ function DashboardComponent() {
                     <div className={styles.singleCard_postContainer}>
                       <div className={styles.postDetails_container}>
                         <img
-                          onClick={() =>
-                            router.push(`/view_profile/${post.userId.username}`)
-                          }
+                          onClick={() => handleProfileNavigation(post.userId)}
                           className={styles.user_profile_picture}
                           src={`${BASE_URL}/${post?.userId?.profilePicture}`}
                           alt=""
@@ -202,11 +211,7 @@ function DashboardComponent() {
                           style={{ marginTop: "0.5rem" }}
                         >
                           <p
-                            onClick={() =>
-                              router.push(
-                                `/view_profile/${post.userId.username}`
-                              )
-                            }
+                            onClick={() => handleProfileNavigation(post.userId)}
                             style={{ fontWeight: "bold", cursor: "pointer" }}
                           >
                             {post?.userId?.name}
@@ -347,7 +352,9 @@ function DashboardComponent() {
 
         {PostState.postId && (
           <div
-            onClick={() => dispatch(resetPostId())}
+            onClick={(e) => {
+              if (!commentText) dispatch(resetPostId());
+            }}
             className={styles.comments_Container}
           >
             <div
@@ -416,10 +423,10 @@ function DashboardComponent() {
                       postComment({
                         post_id: PostState.postId,
                         body: commentText,
-                      })
+                      }),
                     );
                     await dispatch(
-                      getAllComments({ post_id: PostState.postId })
+                      getAllComments({ post_id: PostState.postId }),
                     );
                     setCommentText("");
                   }}

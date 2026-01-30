@@ -230,21 +230,85 @@ export const getUserAndProfile = async (req, res) => {
 //* =============== Update User Profile Data =============== *//
 export const updateUserProfile = async (req, res) => {
   try {
-    const { token, ...newUserProfileData } = req.body;
+    const { token, bio, currentPost } = req.body;
 
-    const user = await User.findOne({ token: token });
+    const user = await User.findOne({ token });
     if (!user) return res.status(404).json({ message: "User not found!" });
 
-    const updateUserProfile = await Profile.findOne({ userId: user._id });
-    Object.assign(updateUserProfile, newUserProfileData);
+    const profile = await Profile.findOne({ userId: user._id });
 
-    await updateUserProfile.save();
+    if (bio !== undefined) profile.bio = bio;
+    if (currentPost !== undefined) profile.currentPost = currentPost;
 
-    return res.json({ message: "User Profile Updated!" });
+    await profile.save();
+
+    return res.json({ message: "Profile updated safely!" });
   } catch (err) {
-    console.error("Error while Updating User Profile! ", err.message);
     return res.status(500).json({ message: "Server Error!" });
   }
+};
+
+//* =============== Create Work history =============== *//
+export const CreateWorkHistory = async (req, res) => {
+  try {
+    const { token, company, position, years } = req.body;
+
+    if (!company || !position || !years) {
+      return res.status(400).json({
+        message: "Company, position and years are required",
+      });
+    }
+
+    const user = await User.findOne({ token });
+    if (!user) {
+      return res.status(404).json({ message: "User Not Found!" });
+    }
+
+    const profile = await Profile.findOne({ userId: user._id });
+    if (!profile) {
+      return res.status(404).json({ message: "Profile Not Found!" });
+    }
+
+    profile.pastWork.push({
+      company: company.trim(),
+      position: position.trim(),
+      years: years.trim(),
+    });
+
+    await profile.save();
+
+    return res.status(200).json({
+      message: "Work history added successfully!",
+      pastWork: profile.pastWork,
+    });
+  } catch (err) {
+    console.error("Error While Adding Work!", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
+
+//* =============== Update Work history =============== *//
+export const updateWorkHistory = async (req, res) => {
+  const { workId } = req.params;
+  const { token, company, position, years } = req.body;
+
+  const user = await User.findOne({ token });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const profile = await Profile.findOne({ userId: user._id });
+  const work = profile.pastWork.id(workId);
+
+  if (!work) {
+    return res.status(404).json({ message: "Work history not found" });
+  }
+
+  work.company = company;
+  work.position = position;
+  work.years = years;
+
+  await profile.save();
+
+  return res.json({ message: "Work history updated successfully!" });
 };
 
 //* =============== Getting all User Profile =============== *//

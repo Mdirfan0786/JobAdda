@@ -83,4 +83,15 @@ Content-Type: application/json
   "token": "d146eb02b305c2b5cf38237343a8fb95a6935db15f37032906df7290db08c150"
 }
 
+###
+PUT http://localhost:7870/update_work_history/697cfd9f19cb5b22093991d0
+Content-Type: application/json
+
+{
+  "token": "d146eb02b305c2b5cf38237343a8fb95a6935db15f37032906df7290db08c150",
+  "company": "irfab",
+  "position": "dffgdsffd dsfsdf",
+  "years": "2023"
+}
+
 

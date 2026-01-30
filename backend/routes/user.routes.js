@@ -16,6 +16,8 @@ import {
   getConnections,
   acceptConnectionRequest,
   getUserDetailsBasedOnUsername,
+  CreateWorkHistory,
+  updateWorkHistory,
 } from "../controllers/user.controller.js";
 
 const router = Router();
@@ -35,21 +37,23 @@ router.post("/login", Login);
 router.post(
   "/upload_profile_picture",
   upload.single("profile_picture"),
-  uploadProfilePicture
+  uploadProfilePicture,
 );
 
 router.post(
   "/upload_profile_background_picture",
   upload.single("profile_background_picture"),
-  uploadingBackgroundPicture
+  uploadingBackgroundPicture,
 );
 
 router.patch("/user_update", userUpdateProfile);
+router.post("/add_work_history", CreateWorkHistory);
+router.put("/update_work_history/:workId", updateWorkHistory);
 router.put("/update_user_profile", updateUserProfile);
 router.get("/get_user_and_profile", getUserAndProfile);
 router.get(
   "/user/get_Profile_based_on_username/:username",
-  getUserDetailsBasedOnUsername
+  getUserDetailsBasedOnUsername,
 );
 
 // ================= USERS =================

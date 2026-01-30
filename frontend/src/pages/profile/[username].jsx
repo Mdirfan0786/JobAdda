@@ -19,6 +19,8 @@ export default function ProfileComponent() {
   const [commentText, setCommentText] = useState("");
   const [showUpdateProfile, setShowUpdateProfile] = useState(false);
   const [showUpdateWork, setShowUpdateWork] = useState(false);
+  const [showWorkHistory, setShowWorkHistory] = useState(false);
+  const [workId, setWorkId] = useState(null);
 
   const PostState = useSelector((state) => state.posts);
   const authState = useSelector((state) => state.auth);
@@ -47,25 +49,6 @@ export default function ProfileComponent() {
       setCurrentPost(userProfile.currentPost);
     }
   }, [showUpdateProfile, userProfile]);
-
-  // user work Updation logic
-  useEffect(() => {
-    if (showUpdateWork && userProfile?.pastWork?.length > 0) {
-      const work = userProfile.pastWork[0];
-
-      setCompany(work.company || "");
-      setPosition(work.position || "");
-
-      if (work.years) {
-        const [from, to] = work.years.split(" - ");
-        setFromYear(from || "");
-        setToYear(to || "");
-      } else {
-        setFromYear("");
-        setToYear("");
-      }
-    }
-  }, [showUpdateWork, userProfile]);
 
   //Fetching posts user details only when token is confirmed
   useEffect(() => {
@@ -219,27 +202,56 @@ export default function ProfileComponent() {
 
   // updating user Work Details
   const handleUpdateWork = async () => {
-    const token = localStorage.getItem("token");
+    if (!workId) {
+      alert("Work ID missing");
+      return;
+    }
 
+    const token = localStorage.getItem("token");
     const yearsValue = fromYear && toYear ? `${fromYear} - ${toYear}` : "";
 
     try {
-      await clientServer.put("/update_user_profile", {
+      await clientServer.put(`/update_work_history/${workId}`, {
         token,
-        pastWork: [
-          {
-            company,
-            position,
-            years: yearsValue,
-          },
-        ],
+        company,
+        position,
+        years: yearsValue,
       });
 
       dispatch(getAboutUser({ token }));
       setShowUpdateWork(false);
+      setWorkId(null);
     } catch (err) {
-      console.error("Failed during user work details Updation!");
+      console.error("Failed during user work details Updation!", err);
     }
+  };
+
+  // Handling ADD WORK DETAILS!
+  const handleAddWork = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!company || !position || !fromYear) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    const yearsValue =
+      fromYear && toYear ? `${fromYear} - ${toYear}` : `${fromYear}`;
+
+    await clientServer.post("/add_work_history", {
+      token,
+      company,
+      position,
+      years: yearsValue,
+    });
+
+    dispatch(getAboutUser({ token }));
+
+    setCompany("");
+    setPosition("");
+    setFromYear("");
+    setToYear("");
+    setShowWorkHistory(false);
   };
 
   // Own prifile
@@ -571,12 +583,12 @@ export default function ProfileComponent() {
                         strokeWidth={1.5}
                         stroke="currentColor"
                         className="size-6"
-                        onClick={() => setShowUpdateWork(true)}
+                        onClick={() => setShowWorkHistory(true)}
                       >
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                          d="M12 4.5v15m7.5-7.5h-15"
                         />
                       </svg>
                     </div>
@@ -587,17 +599,52 @@ export default function ProfileComponent() {
                     userProfile.pastWork.length > 0 ? (
                       userProfile.pastWork.map((work, index) => (
                         <div key={index} className={styles.work_history_Card}>
-                          <p
-                            style={{
-                              fontWeight: "bold",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.8rem",
-                            }}
-                          >
-                            {work.company} - {work.position}
-                          </p>
-                          <p>{work.years}</p>
+                          <div className={styles.workHistory_details}>
+                            <p
+                              style={{
+                                fontWeight: "bold",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.8rem",
+                              }}
+                            >
+                              {work.company} - {work.position}
+                            </p>
+                            <p>{work.years}</p>
+                          </div>
+
+                          <div className={styles.work_history_edit}>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              className="size-6"
+                              onClick={() => {
+                                setWorkId(work._id);
+                                setCompany(work.company);
+                                setPosition(work.position);
+
+                                if (work.years) {
+                                  const [from, to] = work.years.split(" - ");
+                                  setFromYear(from || "");
+                                  setToYear(to || "");
+                                } else {
+                                  setFromYear("");
+                                  setToYear("");
+                                }
+
+                                setShowUpdateWork(true);
+                              }}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                              />
+                            </svg>
+                          </div>
                         </div>
                       ))
                     ) : (
@@ -608,6 +655,125 @@ export default function ProfileComponent() {
                   </div>
                 </div>
 
+                {/* this Modal for Create work History */}
+                {showWorkHistory && (
+                  <>
+                    <div
+                      className={styles.updateProfile_backdrop}
+                      onClick={() => setShowWorkHistory(false)}
+                    />
+
+                    <div className={styles.updateProfile_details}>
+                      <div
+                        style={{
+                          borderBottom: "1px solid #d0d0d0",
+                          paddingBottom: "1rem",
+                        }}
+                      >
+                        <p
+                          style={{
+                            color: "#191919",
+                            fontWeight: "bold",
+                            fontSize: "1.3rem",
+                          }}
+                        >
+                          Add Work Details
+                        </p>
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          Company :{" "}
+                        </p>
+
+                        <input
+                          type="text"
+                          onChange={(e) => setCompany(e.target.value)}
+                          placeholder="Company"
+                        />
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          position :{" "}
+                        </p>
+
+                        <textarea
+                          type="text"
+                          onChange={(e) => setPosition(e.target.value)}
+                          placeholder="Position"
+                          maxLength={100}
+                        />
+
+                        <p
+                          style={{
+                            color: "#c5c3bd",
+                            fontSize: "0.7rem",
+                            marginLeft: "0.2rem",
+                          }}
+                        >
+                          {bio.length}/120
+                        </p>
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          Years :
+                        </p>
+
+                        {/* FROM YEAR */}
+                        <select
+                          className={styles.selectYr}
+                          onChange={(e) => {
+                            setFromYear(Number(e.target.value));
+                            setToYear("");
+                          }}
+                        >
+                          <option value="">From</option>
+                          {Array.from({ length: 30 }, (_, i) => 1995 + i).map(
+                            (year) => (
+                              <option key={year} value={year}>
+                                {year}
+                              </option>
+                            ),
+                          )}
+                        </select>
+
+                        {/* TO YEAR */}
+                        <select
+                          className={styles.selectYr}
+                          value={toYear}
+                          onChange={(e) => setToYear(e.target.value)}
+                          disabled={!fromYear}
+                        >
+                          <option value="">To</option>
+                          <option value="Present">Present</option>
+
+                          {fromYear &&
+                            Array.from(
+                              {
+                                length: new Date().getFullYear() - fromYear + 1,
+                              },
+                              (_, i) => fromYear + i,
+                            ).map((year) => (
+                              <option key={year} value={year}>
+                                {year}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+
+                      <button
+                        className={styles.saveBtn}
+                        onClick={handleAddWork}
+                      >
+                        Create
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* this Modal for Show Update Work */}
                 {showUpdateWork && (
                   <>
                     <div

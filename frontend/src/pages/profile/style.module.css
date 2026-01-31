@@ -210,6 +210,11 @@
   margin-bottom: 0.8rem;
 }
 
+.work_history_edit {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .work_history_edit > svg {
   height: 2.5rem;
   padding-inline: 0.5rem;
@@ -221,6 +226,19 @@
 
 .work_history_edit > svg:hover {
   background-color: #ebf4fd;
+}
+
+.deleteEducation_work_Details > svg {
+  height: 2.5rem;
+  padding-inline: 0.5rem;
+  padding-block: 0.5rem;
+  border-radius: 100%;
+  color: #ff0000;
+  cursor: pointer;
+}
+
+.deleteEducation_work_Details > svg:hover {
+  background-color: #ce65653b;
 }
 
 .selectYr {

@@ -311,6 +311,42 @@ export const updateWorkHistory = async (req, res) => {
   return res.json({ message: "Work history updated successfully!" });
 };
 
+//* =============== Delete Work Details =============== *//
+export const delete_User_Work_details = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const { workId } = req.params;
+
+    if (!token || !workId) {
+      return res.status(400).json({ message: "token & workId are required!" });
+    }
+
+    const user = await User.findOne({ token });
+    if (!user) return res.status(404).json({ message: "user not found!" });
+
+    const profile = await Profile.findOne({ userId: user._id });
+    if (!profile) {
+      return res.status(404).json({ message: "profile not found!" });
+    }
+    const work = profile.pastWork.id(workId);
+
+    if (!work) {
+      return res.status(404).json({ message: "work details not found!" });
+    }
+
+    work.deleteOne();
+    await profile.save();
+
+    return res.status(200).json({
+      message: "User Work Details Delete Successfully!",
+      pastwork: profile.pastWork,
+    });
+  } catch (err) {
+    console.error("Error While Delete Work Details!", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
+
 //* =============== Create Education Details =============== *//
 export const CreateEducationDetails = async (req, res) => {
   try {
@@ -372,6 +408,41 @@ export const updateEducationDetails = async (req, res) => {
   await profile.save();
 
   return res.json({ message: "Education details updated successfully!" });
+};
+
+//* =============== Delete Education Details =============== *//
+export const delete_User_Education_details = async (req, res) => {
+  try {
+    const { educationId } = req.params;
+    const { token } = req.body;
+
+    if (!token || !educationId) {
+      return res.status(400).json({
+        message: "token and educationId are required",
+      });
+    }
+
+    const user = await User.findOne({ token });
+    if (!user) return res.status(404).json({ message: "User not found!" });
+
+    const profile = await Profile.findOne({ userId: user._id });
+    const education = profile.education.id(educationId);
+
+    if (!education) {
+      return res.status(404).json({ message: "Education details not found!" });
+    }
+
+    education.deleteOne();
+    await profile.save();
+
+    return res.status(200).json({
+      message: "Education Details Delete Successfully!",
+      education: profile.education,
+    });
+  } catch (err) {
+    console.error("failed to delete Education Details!", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
 };
 
 //* =============== Getting all User Profile =============== *//

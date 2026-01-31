@@ -129,6 +129,17 @@ export default function ProfileComponent() {
     dispatch(getAllComments({ post_id: post._id }));
   };
 
+  // handling profile navigation
+  const handleProfileNavigation = (postUser) => {
+    const loggedInUserId = authState.user?.userId?._id;
+
+    if (postUser?._id === loggedInUserId) {
+      router.push(`/profile/${postUser.username}`);
+    } else {
+      router.push(`/view_profile/${postUser.username}`);
+    }
+  };
+
   // Getting all users
   useEffect(() => {
     if (!authState.all_profile_fetched) {
@@ -1334,9 +1345,7 @@ export default function ProfileComponent() {
                                   <div className={styles.postDetails_container}>
                                     <img
                                       onClick={() =>
-                                        router.push(
-                                          `/view_profile/${post.userId.username}`,
-                                        )
+                                        handleProfileNavigation(post.userId)
                                       }
                                       className={styles.user_profile_picture}
                                       src={`${BASE_URL}/${post?.userId?.profilePicture}`}
@@ -1349,9 +1358,7 @@ export default function ProfileComponent() {
                                     >
                                       <p
                                         onClick={() =>
-                                          router.push(
-                                            `/view_profile/${post.userId.username}`,
-                                          )
+                                          handleProfileNavigation(post.userId)
                                         }
                                         style={{
                                           fontWeight: "bold",

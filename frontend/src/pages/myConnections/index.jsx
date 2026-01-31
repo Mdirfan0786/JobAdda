@@ -116,7 +116,13 @@ export default function MyConnectionComponent() {
                       alt="profilePicture"
                     />
                     <div className={styles.userCard_profile_Details}>
-                      <h1>{otherUser.name}</h1>
+                      <h1
+                        onClick={() => {
+                          router.push(`/view_profile/${otherUser.username}`);
+                        }}
+                      >
+                        {otherUser.name}
+                      </h1>
                       <p>@{otherUser.username}</p>
                     </div>
                   </div>

@@ -311,6 +311,69 @@ export const updateWorkHistory = async (req, res) => {
   return res.json({ message: "Work history updated successfully!" });
 };
 
+//* =============== Create Education Details =============== *//
+export const CreateEducationDetails = async (req, res) => {
+  try {
+    const { token, school, degree, fieldOfStudy } = req.body;
+
+    if (!school || !degree || !fieldOfStudy) {
+      return res.status(400).json({
+        message: "School, Degree and FieldOfStudy are required",
+      });
+    }
+
+    const user = await User.findOne({ token });
+    if (!user) {
+      return res.status(404).json({ message: "User Not Found!" });
+    }
+
+    const profile = await Profile.findOne({ userId: user._id });
+    if (!profile) {
+      return res.status(404).json({ message: "Profile Not Found!" });
+    }
+
+    profile.education.push({
+      school: school.trim(),
+      degree: degree.trim(),
+      fieldOfStudy: fieldOfStudy.trim(),
+    });
+
+    await profile.save();
+
+    return res.status(200).json({
+      message: "Education Details successfully!",
+      education: profile.education,
+    });
+  } catch (err) {
+    console.error("Error While Adding Education Details!", err.message);
+    return res.status(500).json({ message: "Server Error!" });
+  }
+};
+
+//* =============== Update Education Details =============== *//
+export const updateEducationDetails = async (req, res) => {
+  const { educationId } = req.params;
+  const { token, school, degree, fieldOfStudy } = req.body;
+
+  const user = await User.findOne({ token });
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  const profile = await Profile.findOne({ userId: user._id });
+  const education = profile.education.id(educationId);
+
+  if (!education) {
+    return res.status(404).json({ message: "Education Details not found" });
+  }
+
+  education.school = school;
+  education.degree = degree;
+  education.fieldOfStudy = fieldOfStudy;
+
+  await profile.save();
+
+  return res.json({ message: "Education details updated successfully!" });
+};
+
 //* =============== Getting all User Profile =============== *//
 export const getAllUserProfile = async (req, res) => {
   try {

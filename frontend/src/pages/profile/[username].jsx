@@ -20,7 +20,9 @@ export default function ProfileComponent() {
   const [showUpdateProfile, setShowUpdateProfile] = useState(false);
   const [showUpdateWork, setShowUpdateWork] = useState(false);
   const [showWorkHistory, setShowWorkHistory] = useState(false);
-  const [workId, setWorkId] = useState(null);
+  const [showEducationDetails, setShowEducationDetails] = useState(false);
+  const [showEditEducationDetails, setShowEditEducationDetails] =
+    useState(false);
 
   const PostState = useSelector((state) => state.posts);
   const authState = useSelector((state) => state.auth);
@@ -34,6 +36,13 @@ export default function ProfileComponent() {
   // user Work Updation
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
+  const [workId, setWorkId] = useState(null);
+
+  // user education details
+  const [school, setSchool] = useState("");
+  const [degree, setDegree] = useState("");
+  const [fieldOfStudy, setFieldOfStudy] = useState("");
+  const [educationId, setEducationId] = useState(null);
 
   const [fromYear, setFromYear] = useState("");
   const [toYear, setToYear] = useState("");
@@ -222,7 +231,7 @@ export default function ProfileComponent() {
       setShowUpdateWork(false);
       setWorkId(null);
     } catch (err) {
-      console.error("Failed during user work details Updation!", err);
+      console.error("Failed during user work details Updation!", err.message);
     }
   };
 
@@ -252,6 +261,58 @@ export default function ProfileComponent() {
     setFromYear("");
     setToYear("");
     setShowWorkHistory(false);
+  };
+
+  // handling createion of Education Details
+  const handleEducation = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!school || !degree || !fieldOfStudy) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    await clientServer.post("/add_Education_details", {
+      token,
+      school,
+      degree,
+      fieldOfStudy,
+    });
+
+    dispatch(getAboutUser({ token }));
+
+    setSchool("");
+    setDegree("");
+    setFieldOfStudy("");
+    setShowEducationDetails(false);
+  };
+
+  // updating education Details
+  const handleUpdateEducation = async () => {
+    if (!educationId) {
+      alert("education ID missing");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    try {
+      await clientServer.put(`/update_Education_details/${educationId}`, {
+        token,
+        school,
+        degree,
+        fieldOfStudy,
+      });
+
+      dispatch(getAboutUser({ token }));
+      setShowEditEducationDetails(false);
+      setEducationId(null);
+    } catch (err) {
+      console.error(
+        "Failed during user education details Updation!",
+        err.message,
+      );
+    }
   };
 
   // Own prifile
@@ -887,6 +948,251 @@ export default function ProfileComponent() {
                       <button
                         className={styles.saveBtn}
                         onClick={handleUpdateWork}
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* Education Details */}
+                <div className={styles.work_history}>
+                  <div className={styles.work_history_head}>
+                    <h1>Education Details</h1>
+                    <div className={styles.work_history_edit}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={1.5}
+                        stroke="currentColor"
+                        className="size-6"
+                        onClick={() => setShowEducationDetails(true)}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 4.5v15m7.5-7.5h-15"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className={styles.work_history_container}>
+                    {userProfile?.education &&
+                    userProfile.education.length > 0 ? (
+                      userProfile.education.map((education, index) => (
+                        <div key={index} className={styles.work_history_Card}>
+                          <div className={styles.workHistory_details}>
+                            <p
+                              style={{
+                                fontWeight: "bold",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.8rem",
+                              }}
+                            >
+                              {education.school} - {education.degree}
+                            </p>
+                            <p>{education.fieldOfStudy}</p>
+                          </div>
+
+                          <div className={styles.work_history_edit}>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              className="size-6"
+                              onClick={() => {
+                                setEducationId(education._id);
+                                setSchool(education.school);
+                                setDegree(education.degree);
+                                setFieldOfStudy(education.fieldOfStudy);
+
+                                setShowEditEducationDetails(true);
+                              }}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10"
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p style={{ color: "#888", fontStyle: "italic" }}>
+                        No Education Details added
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* this Modal for Create work History */}
+                {showEducationDetails && (
+                  <>
+                    <div
+                      className={styles.updateProfile_backdrop}
+                      onClick={() => setShowEducationDetails(false)}
+                    />
+
+                    <div className={styles.updateProfile_details}>
+                      <div
+                        style={{
+                          borderBottom: "1px solid #d0d0d0",
+                          paddingBottom: "1rem",
+                        }}
+                      >
+                        <p
+                          style={{
+                            color: "#191919",
+                            fontWeight: "bold",
+                            fontSize: "1.3rem",
+                          }}
+                        >
+                          Add Education Details
+                        </p>
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          School :{" "}
+                        </p>
+
+                        <input
+                          type="text"
+                          onChange={(e) => setSchool(e.target.value)}
+                          placeholder="School"
+                        />
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          degree :{" "}
+                        </p>
+
+                        <textarea
+                          type="text"
+                          onChange={(e) => setDegree(e.target.value)}
+                          placeholder="Degree"
+                          maxLength={100}
+                        />
+
+                        <p
+                          style={{
+                            color: "#c5c3bd",
+                            fontSize: "0.7rem",
+                            marginLeft: "0.2rem",
+                          }}
+                        >
+                          {degree.length}/120
+                        </p>
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          Field Of Study :
+                        </p>
+
+                        <input
+                          type="text"
+                          onChange={(e) => setFieldOfStudy(e.target.value)}
+                          placeholder="Field of study"
+                        />
+                      </div>
+
+                      <button
+                        className={styles.saveBtn}
+                        onClick={handleEducation}
+                      >
+                        Create
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* this Modal for Show Update Education Details */}
+                {showEditEducationDetails && (
+                  <>
+                    <div
+                      className={styles.updateProfile_backdrop}
+                      onClick={() => setShowEditEducationDetails(false)}
+                    />
+
+                    <div className={styles.updateProfile_details}>
+                      <div
+                        style={{
+                          borderBottom: "1px solid #d0d0d0",
+                          paddingBottom: "1rem",
+                        }}
+                      >
+                        <p
+                          style={{
+                            color: "#191919",
+                            fontWeight: "bold",
+                            fontSize: "1.3rem",
+                          }}
+                        >
+                          Edit Education Details
+                        </p>
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          School :{" "}
+                        </p>
+
+                        <input
+                          type="text"
+                          value={school}
+                          onChange={(e) => setSchool(e.target.value)}
+                          placeholder="School"
+                        />
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          degree :{" "}
+                        </p>
+
+                        <textarea
+                          type="text"
+                          value={degree}
+                          onChange={(e) => setDegree(e.target.value)}
+                          placeholder="Degree"
+                          maxLength={100}
+                        />
+
+                        <p
+                          style={{
+                            color: "#c5c3bd",
+                            fontSize: "0.7rem",
+                            marginLeft: "0.2rem",
+                          }}
+                        >
+                          {degree.length}/120
+                        </p>
+                      </div>
+
+                      <div className={styles.profilDetails}>
+                        <p style={{ marginTop: "1rem", color: "#404040" }}>
+                          Field Of Study :
+                        </p>
+
+                        <input
+                          type="text"
+                          value={fieldOfStudy}
+                          onChange={(e) => setFieldOfStudy(e.target.value)}
+                          placeholder="Field Of Study"
+                        />
+                      </div>
+
+                      <button
+                        className={styles.saveBtn}
+                        onClick={handleUpdateEducation}
                       >
                         Save
                       </button>

@@ -18,6 +18,8 @@ import {
   getUserDetailsBasedOnUsername,
   CreateWorkHistory,
   updateWorkHistory,
+  CreateEducationDetails,
+  updateEducationDetails,
 } from "../controllers/user.controller.js";
 
 const router = Router();
@@ -49,6 +51,9 @@ router.post(
 router.patch("/user_update", userUpdateProfile);
 router.post("/add_work_history", CreateWorkHistory);
 router.put("/update_work_history/:workId", updateWorkHistory);
+router.patch("/user_update", userUpdateProfile);
+router.post("/add_Education_details", CreateEducationDetails);
+router.put("/update_Education_details/:educationId", updateEducationDetails);
 router.put("/update_user_profile", updateUserProfile);
 router.get("/get_user_and_profile", getUserAndProfile);
 router.get(

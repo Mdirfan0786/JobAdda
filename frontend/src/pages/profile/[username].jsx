@@ -1125,7 +1125,7 @@ export default function ProfileComponent() {
 
                             <div
                               title="Delete education details"
-                              onClick={() => {
+                              onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteEducation(education._id);
                               }}

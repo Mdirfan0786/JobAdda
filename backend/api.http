@@ -31,23 +31,13 @@ PUT http://localhost:7870/update_user_profile HTTP/1.1
 Content-Type: application/json
 
 {
-  "token": "7474c39650ef9fff2969e2df297cf87fe6642a7d432ebfce01fda547cdcc1a7e",
-  "bio": "Learning full-stack development.",
-  "currentPost": "Student",
-  "pastWork": [
-    {
-      "company": "Freelancer",
-      "position": "Web Developer",
-      "years": "2023"
-    }
-  ],
-  "education": [
-    {
-      "school": "Government College",
-      "degree": "B.Sc",
-      "fieldOfStudy": "IT"
-    }
-  ]
+  
+  "token": "712872aaeb0ca59b83c2a3c587d076b2067a958fca5a676a18e6bf663d6818fc",
+   "bio": "Passionate full-stack developer focused on building scalable web applications using MERN stack.",
+    "currentPost": "Full Stack Developer"
+
+
+
 }
 
 
@@ -84,14 +74,28 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:7870/update_work_history/697cfd9f19cb5b22093991d0
+POST http://localhost:7870/add_work_history
 Content-Type: application/json
 
 {
-  "token": "d146eb02b305c2b5cf38237343a8fb95a6935db15f37032906df7290db08c150",
-  "company": "irfab",
-  "position": "dffgdsffd dsfsdf",
-  "years": "2023"
+ "token": "02463686dca62a4dbc3d7ea2c59e8c13739bedab73054d4a75f4356eab0e1e14",
+    
+  "company": "College Project",
+    "position": "MERN Stack Developer",
+    "years": "2021 - 2022"
+  
+}
+
+###
+POST http://localhost:7870/add_Education_details
+Content-Type: application/json
+
+{
+ "token": "02463686dca62a4dbc3d7ea2c59e8c13739bedab73054d4a75f4356eab0e1e14",
+    
+  "school": "XYZ Senior Secondary School",
+    "degree": "Higher Secondary (12th)",
+    "fieldOfStudy": "Science (PCM)"
 }
 
 

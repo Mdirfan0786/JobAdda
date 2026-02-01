@@ -339,9 +339,13 @@
 }
 
 .premium_profile_picture {
-  max-width: 3.5rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: cover;
+  border-radius: 50%;
   cursor: pointer;
-  border-radius: 100%;
+  border: 2px solid #0a66c2;
+  flex-shrink: 0;
 }
 
 .premium_profile_data {

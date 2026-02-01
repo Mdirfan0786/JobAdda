@@ -424,6 +424,36 @@ export default function ViewProfile({ userProfile }) {
                 </div>
               </div>
 
+              {/* Education Details */}
+              <div className={styles.work_history}>
+                <h1>Education Details</h1>
+
+                <div className={styles.work_history_container}>
+                  {userProfile?.education &&
+                  userProfile.education.length > 0 ? (
+                    userProfile.education.map((education, index) => (
+                      <div key={index} className={styles.work_history_Card}>
+                        <p
+                          style={{
+                            fontWeight: "bold",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.8rem",
+                          }}
+                        >
+                          {education.school} - {education.degree}
+                        </p>
+                        <p>{education.fieldOfStudy}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p style={{ color: "#888", fontStyle: "italic" }}>
+                      No education details added
+                    </p>
+                  )}
+                </div>
+              </div>
+
               {/* All Posts */}
               <div className={styles.Dashboard_component}>
                 <div className={styles.all_posts_Container}>

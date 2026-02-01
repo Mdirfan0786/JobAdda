@@ -24,10 +24,13 @@
 }
 
 .userCard_image {
-  max-width: 5rem;
+  width: 5rem;
+  height: 5rem;
   padding: 0.7rem;
-  border-radius: 100%;
+  object-fit: cover;
+  border-radius: 50%;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .userCard_profile_Details > h1 {

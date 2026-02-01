@@ -54,7 +54,7 @@ router.patch("/user_update", userUpdateProfile);
 router.post("/add_work_history", CreateWorkHistory);
 router.put("/update_work_history/:workId", updateWorkHistory);
 router.delete("/delete_User_Work_details/:workId", delete_User_Work_details);
-router.patch("/user_update", userUpdateProfile);
+
 router.post("/add_Education_details", CreateEducationDetails);
 router.put("/update_Education_details/:educationId", updateEducationDetails);
 router.delete(

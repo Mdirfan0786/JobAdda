@@ -515,3 +515,145 @@
 .Dashboard_component {
   border-radius: 0.5rem;
 }
+
+/* TABLET & MOBILE */
+@media only screen and (max-width: 1024px) {
+  .conteiner {
+    padding-inline: 2rem;
+  }
+
+  .profile_container {
+    gap: 0.8rem;
+  }
+}
+
+/* MOBILE VIEW */
+@media only screen and (max-width: 768px) {
+  /* MAIN LAYOUT */
+  .conteiner {
+    padding-inline: 1rem;
+  }
+
+  .profile_container {
+    flex-direction: column;
+  }
+
+  /* HIDE RIGHT SIDEBAR */
+  .profile_container_right {
+    display: none;
+  }
+
+  .profile_container_left {
+    flex: 1;
+  }
+
+  /* BACKGROUND IMAGE */
+  .profile_left_backgroundImg {
+    height: 22vh;
+  }
+
+  /* PROFILE PIC CENTER */
+  .profile_pic {
+    width: 110px;
+    height: 110px;
+    bottom: -25%;
+    left: 20%;
+    transform: translateX(-50%);
+  }
+
+  /* PROFILE CONTENT */
+  .profile_left_container_bottom {
+    padding: 0 1rem;
+    text-align: center;
+  }
+
+  .whitespace {
+    height: 3.5rem;
+  }
+
+  .profile_username > p {
+    text-align: start;
+  }
+
+  /* BUTTONS FULL WIDTH */
+  .connectedBtn,
+  .connectBtn,
+  .editProfileBtn,
+  .pendingBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* WORK HISTORY */
+  .work_history {
+    padding: 0.8rem;
+  }
+
+  .work_history_Card {
+    padding: 1rem;
+    box-shadow: 4px 4px 10px rgb(180, 180, 180);
+  }
+
+  /* POSTS */
+  .singleCard_postContainer {
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .postDetails_container {
+    align-items: center;
+  }
+
+  .follow {
+    align-self: flex-start;
+    font-size: 0.9rem;
+  }
+
+  /* COMMENTS MODAL */
+  .all_Comments_Container {
+    width: 92vw;
+    height: 85vh;
+  }
+
+  .Post_Comment_Container {
+    gap: 0.5rem;
+  }
+
+  .Post_Comment_Container > input {
+    flex: 0.85;
+  }
+
+  .comment_button {
+    flex: 0.15;
+    text-align: center;
+  }
+}
+
+/* SMALL MOBILE (VERY SMALL SCREENS) */
+@media only screen and (max-width: 480px) {
+  .profile_left_backgroundImg {
+    height: 18vh;
+  }
+
+  .profile_pic {
+    width: 95px;
+    height: 95px;
+    bottom: -22%;
+  }
+
+  .user_profile_picture {
+    height: 3rem;
+  }
+
+  .premium_profile_picture {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .like,
+  .comment,
+  .share {
+    font-size: 0.7rem;
+    padding: 0.4rem;
+  }
+}

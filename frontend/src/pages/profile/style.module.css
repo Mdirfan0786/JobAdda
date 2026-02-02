@@ -83,16 +83,13 @@
   border-radius: 100%;
   color: #0a66c2;
   cursor: pointer;
+  position: absolute;
+  bottom: 5%;
+  right: 5%;
 }
 
 .profilePic_edit_btn > svg:hover {
   background-color: #ebf4fd;
-}
-
-.profilePic_edit_btn > svg {
-  position: absolute;
-  bottom: 5%;
-  right: 5%;
 }
 
 .profile_left_container_bottom {
@@ -665,4 +662,130 @@
 
 .Dashboard_component {
   border-radius: 0.5rem;
+}
+
+@media only screen and (max-width: 768px) {
+  /* RIGHT SIDEBAR (HIDE ON MOBILE) */
+  .profile_container_right {
+    display: none;
+  }
+
+  /*  MAIN CONTAINER PADDING FIX
+     (Desktop padding too large for mobile) */
+  .conteiner {
+    padding-inline: 1rem;
+  }
+
+  /*  PROFILE LAYOUT → COLUMN */
+  .profile_container {
+    flex-direction: column;
+  }
+
+  .profile_container_left {
+    flex: 1;
+  }
+
+  /*  PROFILE BACKGROUND IMAGE */
+  .profile_left_backgroundImg {
+    height: 22vh;
+  }
+
+  /*  PROFILE PICTURE (CENTERED) */
+  .profile_pic {
+    width: 110px;
+    height: 110px;
+    bottom: -25%;
+    left: 20%;
+    transform: translateX(-50%);
+  }
+
+  .profile_username {
+    text-align: start;
+  }
+
+  /*  PROFILE TEXT CONTAINER */
+  .profile_left_container_bottom {
+    padding: 0 1rem;
+    text-align: center;
+  }
+
+  /*  SPACE BELOW PROFILE PIC */
+  .whitespace {
+    height: 3.5rem;
+  }
+
+  /*  UPDATE PROFILE MODAL */
+  .updateProfile_details {
+    width: 92vw;
+    min-height: auto;
+    max-height: 85vh;
+    overflow-y: auto;
+    top: 50%;
+  }
+
+  /* SAVE BUTTON FULL WIDTH */
+  .saveBtn {
+    position: static;
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  /*  WORK HISTORY CARD */
+  .work_history_Card {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  /*  POST HEADER STACK */
+  .singleCard_postContainer {
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /*   FOLLOW BUTTON ALIGNMENT */
+  .follow {
+    align-self: flex-start;
+  }
+
+  /*  PROFILE ACTION BUTTONS */
+  .connectedBtn,
+  .connectBtn,
+  .editProfileBtn,
+  .pendingBtn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .profilePicUpdate {
+    opacity: 1;
+  }
+
+  .profilePic_edit_btn > svg {
+    bottom: 0%;
+    right: 0;
+  }
+
+  .profilePic_edit_btn > svg:hover {
+    background-color: transparent;
+  }
+
+  /* COMMENTS MODAL */
+  .all_Comments_Container {
+    width: 92vw;
+    height: 85vh;
+  }
+
+  .Post_Comment_Container {
+    gap: 0.5rem;
+  }
+
+  .Post_Comment_Container > input {
+    flex: 0.85;
+  }
+
+  .comment_button {
+    flex: 0.15;
+    text-align: center;
+  }
 }

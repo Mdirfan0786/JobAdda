@@ -21,26 +21,6 @@
   gap: 0.5rem;
 }
 
-/* .profileContainer {
-  min-height: 40vh;
-  border-radius: 0.5rem;
-  background-color: #fff;
-  border: 1px solid #dfdeda;
-}
-
-.profile_details {
-  background-color: red;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.itemContainer {
-  min-height: 30vh;
-  border-radius: 0.5rem;
-  background-color: #fff;
-  border: 1px solid #dfdeda;
-} */
-
 /* side Bar Container */
 .sideBarContainer {
   position: sticky;
@@ -183,4 +163,64 @@
 .Explore_job_adda > p::selection {
   background: transparent;
   color: inherit;
+}
+
+.mobileNav {
+  display: none;
+}
+
+/* Responsive design */
+@media only screen and (max-width: 768px) {
+  /* Container padding reduce */
+  .container {
+    padding: 0 1rem;
+  }
+
+  /* Layout column */
+  .homeContainer {
+    flex-direction: column;
+  }
+
+  /* LEFT SIDEBAR HIDE */
+  .homeContainer__leftBar {
+    display: none;
+  }
+
+  /* RIGHT SIDEBAR HIDE */
+  .homeContainer__extraContainer {
+    display: none;
+  }
+
+  /* FEED FULL WIDTH */
+  .homeContainer__feedContainer {
+    flex: 1;
+    width: 100%;
+  }
+
+  /* MOBILE NAV */
+  .mobileNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .mobileNav_foot > svg {
+    max-height: 1.8rem;
+    min-height: 1.5rem;
+    text-align: center;
+  }
+
+  /* MOBILE NAV WIDTH */
+  .mobileNav div {
+    font-size: 1.4rem;
+    cursor: pointer;
+  }
 }

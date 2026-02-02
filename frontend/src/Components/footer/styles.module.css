@@ -50,3 +50,20 @@
 .footerLinks a:hover {
   color: #0a66c2;
 }
+
+/* Responsive (Mobile View)  */
+@media only screen and (max-width: 600px) {
+  .footerContainer {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .footerLogo {
+    margin-right: 0;
+  }
+
+  .footerLinks {
+    justify-content: center;
+  }
+}

@@ -40,61 +40,38 @@ function NavbarComponent() {
           </h1>
 
           <div className={styles.navBarOptionContainer}>
-            {/* if User is Logged in then show */}
-            {authState.profileFetched && (
-              <div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1.2rem",
-                  }}
-                >
-                  <p>hey, {authState.user.userId.name} 👋</p>
-                  <p
-                    onClick={handleProfileNav}
-                    className={styles.hoverProfile}
-                    style={{
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      paddingInline: "0.8rem",
-                      paddingBlock: "0.3rem",
-                      borderRadius: "0.25rem",
-                    }}
-                  >
-                    {getPageTitle()}
-                  </p>
-                  <p
-                    onClick={(e) => {
-                      localStorage.removeItem("token");
-                      router.push("/auth?mode=login");
-                      dispatch(reset());
-                    }}
-                    className={styles.hoverLogout}
-                    style={{
-                      color: "red",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      paddingInline: "0.8rem",
-                      paddingBlock: "0.3rem",
-                      borderRadius: "0.25rem",
-                    }}
-                  >
-                    Logout
-                  </p>
-                </div>
-              </div>
-            )}
+            {authState.profileFetched ? (
+              <div className={styles.userNav}>
+                <span className={styles.greeting}>
+                  Hi, {authState.user.userId.name} 👋
+                </span>
 
-            {/* Show Only if User is not loggedIn */}
-            {!authState.profileFetched && (
+                <button
+                  onClick={handleProfileNav}
+                  className={styles.profileBtn}
+                >
+                  {getPageTitle()}
+                </button>
+
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    router.push("/auth?mode=login");
+                    dispatch(reset());
+                  }}
+                  className={styles.logoutBtn}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
               <>
-                <div
+                <button
                   onClick={() => router.push("/auth?mode=register")}
                   className={styles.buttonJoin}
                 >
-                  <p>Be a Part</p>
-                </div>
+                  Be a Part
+                </button>
 
                 <button
                   onClick={() => router.push("/auth?mode=login")}

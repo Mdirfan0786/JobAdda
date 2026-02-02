@@ -73,14 +73,95 @@
   border-radius: 0.25rem;
 }
 
-/* Hover */
-.hoverProfile:hover {
-  background-color: #ebf4fd;
-  color: #0a66c2;
-  transition: 0.2s ease-in-out;
+.userNav {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
-.hoverLogout:hover {
-  background-color: #ce65653b;
-  transition: 0.2s ease-in-out;
+.greeting {
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.profileBtn {
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid #0a66c2;
+  background: #fff;
+  color: #0a66c2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profileBtn:hover {
+  background: #ebf4fd;
+}
+
+.logoutBtn {
+  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid #ff4d4d;
+  background: #fff;
+  color: #ff4d4d;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logoutBtn:hover {
+  background: #ffecec;
+}
+
+@media only screen and (max-width: 768px) {
+  /* Navbar container */
+  .container {
+    padding: 0.7rem 1rem;
+  }
+
+  .navbar {
+    padding: 0;
+  }
+
+  /* Logo smaller */
+  .logo {
+    font-size: 1.4rem;
+  }
+
+  .logo span {
+    padding: 0 0.35rem;
+  }
+
+  /* Button container spacing */
+  .navBarOptionContainer {
+    gap: 0.5rem;
+  }
+
+  /* Join button compact */
+  .buttonJoin {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.7rem;
+  }
+
+  /* Login button compact */
+  .linkedinLoginBtn {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.7rem;
+    border-radius: 20px;
+  }
+
+  .greeting {
+    display: none;
+  }
+
+  .userNav {
+    gap: 0.4rem;
+  }
+
+  .profileBtn,
+  .logoutBtn {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.7rem;
+  }
 }

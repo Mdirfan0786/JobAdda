@@ -165,3 +165,84 @@
 .eyeIcon:hover {
   opacity: 0.7;
 }
+
+/* TABLET VIEW */
+@media only screen and (max-width: 1024px) {
+  .cardContainer {
+    width: 90vw;
+    min-height: auto;
+  }
+
+  .cardContainer_left {
+    padding: 2rem;
+  }
+}
+
+/* MOBILE VIEW */
+@media only screen and (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .cardContainer {
+    flex-direction: column;
+    width: 100%;
+    min-height: auto;
+    border-radius: 1rem;
+  }
+
+  /* LEFT FORM */
+  .cardContainer_left {
+    flex: 1;
+    padding: 1.8rem 1.4rem;
+  }
+
+  .cardleft_heading {
+    font-size: 1.5rem;
+  }
+
+  .inpuContainers {
+    padding: 1rem 0;
+    max-width: 100%;
+  }
+
+  .inputRow {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .inputField {
+    width: 100%;
+  }
+
+  .authBtn {
+    font-size: 0.95rem;
+    padding: 0.85rem;
+  }
+
+  /* RIGHT SIDE HIDE */
+  .cardContainer_right {
+    display: none;
+  }
+}
+
+/* SMALL MOBILE (VERY SMALL SCREENS) */
+@media only screen and (max-width: 480px) {
+  .cardleft_heading {
+    font-size: 1.35rem;
+  }
+
+  .authBtn {
+    font-size: 0.9rem;
+  }
+
+  .errorMessage,
+  .successMessage {
+    font-size: 0.8rem;
+  }
+
+  .eyeIcon {
+    font-size: 0.9rem;
+    right: 12px;
+  }
+}

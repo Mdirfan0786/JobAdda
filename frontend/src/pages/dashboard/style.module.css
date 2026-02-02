@@ -310,3 +310,24 @@
   background-color: #378fe9;
   cursor: pointer;
 }
+
+@media only screen and (max-width: 768px) {
+  /* COMMENTS MODAL */
+  .all_Comments_Container {
+    width: 92vw;
+    height: 65vh;
+  }
+
+  .Post_Comment_Container {
+    gap: 0.5rem;
+  }
+
+  .Post_Comment_Container > input {
+    flex: 0.85;
+  }
+
+  .comment_button {
+    flex: 0.15;
+    text-align: center;
+  }
+}

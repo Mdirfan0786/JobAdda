@@ -6,10 +6,14 @@ export const loginUser = createAsyncThunk(
   "user/login",
   async (user, thunkAPI) => {
     try {
-      const res = await clientServer.post("/login", {
-        email: user.email,
-        password: user.password,
-      });
+      const res = await clientServer.post(
+        "/login",
+        {
+          email: user.email,
+          password: user.password,
+        },
+        { withCredentials: true },
+      );
 
       localStorage.setItem("token", res.data.token);
       return res.data;
@@ -24,7 +28,7 @@ export const registerUser = createAsyncThunk(
   "user/register",
   async (user, thunkAPI) => {
     try {
-      await clientServer.post("/register", user);
+      await clientServer.post("/register", user, { withCredentials: true });
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data);
     }

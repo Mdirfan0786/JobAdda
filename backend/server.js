@@ -14,7 +14,6 @@ const allowedOrigins = [process.env.LOCAL_URL, process.env.FRONTEND_URL];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // allow server-to-server / Postman / curl
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
@@ -29,8 +28,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("/*", cors(corsOptions));
-
 app.use(express.json());
 app.use(express.static("uploads"));
 
@@ -44,13 +41,14 @@ const start = async () => {
     await mongoose.connect(process.env.MONGO_URL, {
       dbName: "jobadda",
     });
-    console.log("MongoDB connected Successfully");
+
+    console.log("MongoDB connected");
 
     app.listen(PORT, () => {
-      console.log(`Server is listening on port : ${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   } catch (err) {
-    console.log("failed to start server!", err.message);
+    console.log("Failed to start server:", err.message);
     process.exit(1);
   }
 };

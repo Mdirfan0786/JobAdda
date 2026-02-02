@@ -10,30 +10,25 @@ dotenv.config();
 
 const app = express();
 
-const allowedOrigins = [process.env.LOCAL_URL, process.env.FRONTEND_URL];
+/* ===== CORS ===== */
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error("Not allowed by CORS"));
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-
-app.use(cors(corsOptions));
+/* ===== MIDDLEWARE ===== */
 app.use(express.json());
 app.use(express.static("uploads"));
 
+/* ===== ROUTES ===== */
 app.use(postRoutes);
 app.use(userRoutes);
 
+/* ===== SERVER ===== */
 const PORT = process.env.PORT || 7870;
 
 const start = async () => {
@@ -42,13 +37,10 @@ const start = async () => {
       dbName: "jobadda",
     });
 
-    console.log("MongoDB connected");
-
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    console.log("✅ MongoDB connected");
+    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   } catch (err) {
-    console.log("Failed to start server:", err.message);
+    console.error("❌ Server start failed:", err.message);
     process.exit(1);
   }
 };

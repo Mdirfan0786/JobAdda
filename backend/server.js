@@ -10,9 +10,20 @@ dotenv.config();
 
 const app = express();
 
+const allowedOrigins = [process.env.LOCAL_URL, process.env.FRONTEND_URL];
+
 app.use(
   cors({
-    origin: [process.env.LOCAL_URL, process.env.FRONTEND_URL],
+    origin: function (origin, callback) {
+      // allow server-to-server / Postman / curl
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }),

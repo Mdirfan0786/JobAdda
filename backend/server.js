@@ -12,10 +12,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: [process.env.LOCAL_URL, process.env.FRONTEND_URL],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  })
+  }),
 );
 app.use(express.json());
 app.use(express.static("uploads"));

@@ -28,6 +28,9 @@ app.use(
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }),
 );
+
+app.options("*", cors());
+
 app.use(express.json());
 app.use(express.static("uploads"));
 

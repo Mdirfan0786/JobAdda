@@ -10,25 +10,19 @@ dotenv.config();
 
 const app = express();
 
-/* ===== CORS ===== */
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: [process.env.LOCAL_URL, process.env.FRONTEND_URL],
     credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   }),
 );
-
-/* ===== MIDDLEWARE ===== */
 app.use(express.json());
 app.use(express.static("uploads"));
 
-/* ===== ROUTES ===== */
 app.use(postRoutes);
 app.use(userRoutes);
 
-/* ===== SERVER ===== */
 const PORT = process.env.PORT || 7870;
 
 const start = async () => {
@@ -36,11 +30,13 @@ const start = async () => {
     await mongoose.connect(process.env.MONGO_URL, {
       dbName: "jobadda",
     });
+    console.log("MongoDB connected Successfully");
 
-    console.log("✅ MongoDB connected");
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+      console.log(`Server is listening on port : ${PORT}`);
+    });
   } catch (err) {
-    console.error("❌ Server start failed:", err.message);
+    console.log("failed to start server!", err.message);
     process.exit(1);
   }
 };

@@ -1,36 +1,27 @@
-import { getAboutUser } from "@/config/redux/action/authAction";
-import { getAllPosts } from "@/config/redux/action/postAction";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { useDispatch, useSelector } from "react-redux";
 import styles from "./style.module.css";
-import { setTokenIsThere } from "@/config/redux/reducers/authReducer";
 import { BASE_URL } from "@/config";
+import { useSelector } from "react-redux";
 
 export default function DashboardLayout({ children }) {
   const router = useRouter();
   const authState = useSelector((state) => state.auth);
-  const Dispatch = useDispatch();
 
-  //   checking token available
+  // ================= AUTH GUARD =================
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const token = localStorage.getItem("token");
 
     if (!token) {
-      router.push("/auth?mode=login");
-      return;
+      router.replace("/auth?mode=login");
     }
+  }, [router]);
 
-    Dispatch(setTokenIsThere());
-  }, [Dispatch, router]);
-
-  // Alert
+  // ================= ALERT =================
   const handleAlert = () => {
-    alert(
-      `🚧 This feature is currently under development  We’re writing clean code & fixing bugs. Stay tuned.`,
-    );
+    alert(`🚧 This feature is currently under development. Stay tuned.`);
   };
 
   return (

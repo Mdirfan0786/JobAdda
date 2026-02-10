@@ -38,41 +38,37 @@ export default function ViewProfile({ userProfile }) {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  // getting User Post
-  const getUserPost = async () => {
-    await dispatch(getAllPosts());
-  };
-
-  useEffect(() => {
-    dispatch(getAboutUser());
-  }, []);
-
   const profileUserId = userProfile?.userId?._id;
 
   const isConnected = authState.connections.some(
     (c) =>
-      c.userId?._id === profileUserId || c.connectionId?._id === profileUserId,
+      String(c.userId?._id) === String(profileUserId) ||
+      String(c.connectionId?._id) === String(profileUserId),
+  );
+
+  const isReceived = authState.receivedRequests.some(
+    (r) =>
+      String(r.userId?._id) === String(profileUserId) && r.status === "pending",
   );
 
   const isSent = authState.sentRequests.some(
-    (r) => r.connectionId?._id === profileUserId,
+    (r) =>
+      String(r.connectionId?._id) === String(profileUserId) &&
+      r.status === "pending",
   );
 
-  const finalIsSent = isSent || localPending;
+  const finalIsSent = localPending || isSent;
 
-  const isReceived = authState.receivedRequests.some(
-    (r) => r.userId?._id === profileUserId,
-  );
-
+  // Logged-in user data
   useEffect(() => {
     if (!token) return;
-
+    dispatch(getAboutUser());
     dispatch(getSentRequests());
     dispatch(getReceivedRequests());
     dispatch(getConnections());
-  }, [token, router.query.username, dispatch]);
+  }, [token, dispatch]);
 
-  // Getting all users
+  // All users (Right side)
   useEffect(() => {
     if (!authState.all_profile_fetched) {
       dispatch(getAllUsers());
@@ -80,10 +76,10 @@ export default function ViewProfile({ userProfile }) {
   }, [authState.all_profile_fetched, dispatch]);
 
   useEffect(() => {
-    if (router.query.username) {
-      getUserPost();
+    if (router.query.username && token) {
+      dispatch(getAllPosts());
     }
-  }, [router.query.username]);
+  }, [router.query.username, token, dispatch]);
 
   // Alert
   const handleAlert = () => {
@@ -114,21 +110,6 @@ export default function ViewProfile({ userProfile }) {
 
   // Post Section  ----------------------------------------------------------------/////
 
-  //Fetching posts user details only when token is confirmed
-  useEffect(() => {
-    if (authState.isTokenThere) {
-      const token = localStorage.getItem("token");
-      dispatch(getAllPosts());
-      dispatch(getAboutUser({ token }));
-    }
-  }, [authState.isTokenThere, dispatch]);
-
-  useEffect(() => {
-    if (!authState.all_profile_fetched) {
-      dispatch(getAllUsers());
-    }
-  }, [authState.all_profile_fetched, dispatch]);
-
   // handling Delete Post functionality
   const handleDelete = async (postId) => {
     const isConfirmed = window.confirm(
@@ -137,9 +118,7 @@ export default function ViewProfile({ userProfile }) {
 
     if (!isConfirmed) return;
 
-    await dispatch(
-      deletePost({ token: localStorage.getItem("token"), post_id: postId }),
-    );
+    await dispatch(deletePost({ token, post_id: postId }));
 
     await dispatch(getAllPosts());
   };
@@ -153,7 +132,7 @@ export default function ViewProfile({ userProfile }) {
     if (!isConfirmed) return;
 
     await dispatch(deleteComment({ comment_id: commentId }));
-    await dispatch(getAllComments({ post_id: PostState.postId }));
+    await dispatch(getAllComments({ post_id: postState.postId }));
   };
 
   // Handling Share functionality
@@ -188,13 +167,6 @@ export default function ViewProfile({ userProfile }) {
   const handleComments = (post) => {
     dispatch(getAllComments({ post_id: post._id }));
   };
-
-  // Getting all users
-  useEffect(() => {
-    if (!authState.all_profile_fetched) {
-      dispatch(getAllUsers());
-    }
-  }, [authState.all_profile_fetched, dispatch]);
 
   const isOwnProfile = authState.user?.userId?._id === userProfile?.userId?._id;
   return (
@@ -344,8 +316,7 @@ export default function ViewProfile({ userProfile }) {
                           try {
                             await dispatch(
                               sendConnectionRequest({
-                                token,
-                                user_id: profileUserId,
+                                connectionId: profileUserId,
                               }),
                             );
 

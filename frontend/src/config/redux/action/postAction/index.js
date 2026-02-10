@@ -1,26 +1,26 @@
 import { clientServer } from "@/config";
-import { asyncThunkCreator, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
-// ============== Get All Posts ============== //
+// ================= GET ALL POSTS =================
 export const getAllPosts = createAsyncThunk(
-  "/post/getAllPosts",
+  "post/getAllPosts",
   async (_, thunkAPI) => {
     try {
-      const response = await clientServer.get("/posts");
-      return thunkAPI.fulfillWithValue(response.data);
+      const res = await clientServer.get("/posts");
+      return res.data.posts;
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.response.data);
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to fetch posts",
+      );
     }
-  }
+  },
 );
 
-// ============== Creating Posts ============== //
+// ================= CREATE POST =================
 export const CreatePost = createAsyncThunk(
-  "post/create_post",
+  "post/createPost",
   async ({ file, body }, thunkAPI) => {
     try {
-      const token = localStorage.getItem("token");
-
       const formData = new FormData();
       formData.append("body", body);
 
@@ -28,107 +28,110 @@ export const CreatePost = createAsyncThunk(
         formData.append("media", file);
       }
 
-      const response = await clientServer.post("/create_post", formData, {
+      const res = await clientServer.post("/create_post", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: token,
         },
       });
 
-      return response.data;
+      return res.data;
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.response?.data);
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to create post",
+      );
     }
-  }
+  },
 );
 
-// ============== Delete Post ============== //
+// ================= DELETE POST =================
 export const deletePost = createAsyncThunk(
-  "post/delete",
+  "post/deletePost",
+  async ({ post_id }, thunkAPI) => {
+    try {
+      const res = await clientServer.delete("/delete_post", {
+        data: { post_id },
+      });
+
+      return { post_id };
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to delete post",
+      );
+    }
+  },
+);
+
+// ================= INCREMENT POST LIKES =================
+export const incrementPostLikes = createAsyncThunk(
+  "post/incrementPostLikes",
   async (post_id, thunkAPI) => {
     try {
-      const response = await clientServer.delete("/delete_post", {
-        data: {
-          token: localStorage.getItem("token"),
-          post_id: post_id.post_id,
-        },
+      const res = await clientServer.post("/increment_post_likes", {
+        post_id,
       });
-
-      return response.fulfillWithValue(response.data);
+      return { post_id };
     } catch (err) {
-      return thunkAPI.rejectWithValue("Something Went Wrong!");
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to like post",
+      );
     }
-  }
+  },
 );
 
-// ============== Increment Posts Likes ============== //
-export const incrementPostLikes = createAsyncThunk(
-  "post/incrementLikes",
-  async (postId, thunkAPI) => {
-    try {
-      const response = await clientServer.post("/increment_post_likes", {
-        post_id: postId,
-      });
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.response.data.message);
-    }
-  }
-);
-
-// ============== Get All Comments ============== //
+// ================= GET COMMENTS BY POST =================
 export const getAllComments = createAsyncThunk(
   "post/getAllComments",
-  async (postData, thunkAPI) => {
+  async ({ post_id }, thunkAPI) => {
     try {
-      const response = await clientServer.get("/get_comments", {
-        params: {
-          post_id: postData.post_id,
-        },
+      const res = await clientServer.get("/get_comments", {
+        params: { post_id },
       });
 
-      return thunkAPI.fulfillWithValue({
-        comments: response.data,
-        post_id: postData.post_id,
-      });
+      return {
+        post_id,
+        comments: res.data.comments,
+      };
     } catch (err) {
-      return thunkAPI.rejectWithValue(err.response.data.message);
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to fetch comments",
+      );
     }
-  }
+  },
 );
 
-// ============== Post Comment ============== //
+// ================= POST COMMENT =================
 export const postComment = createAsyncThunk(
   "post/postComment",
-  async (commentData, thunkAPI) => {
+  async ({ post_id, body }, thunkAPI) => {
     try {
-      const response = await clientServer.post("/comment", {
-        token: localStorage.getItem("token"),
-        post_id: commentData.post_id,
-        commentBody: commentData.body,
+      const res = await clientServer.post("/comment", {
+        post_id,
+        commentBody: body,
       });
 
-      return thunkAPI.fulfillWithValue(response.data);
+      return res.data;
     } catch (err) {
-      return thunkAPI.rejectWithValue("Something Went Wrong!");
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to post comment",
+      );
     }
-  }
+  },
 );
 
-// ============== Delete Comment ============== //
+// ================= DELETE COMMENT =================
 export const deleteComment = createAsyncThunk(
   "post/deleteComment",
   async ({ comment_id }, thunkAPI) => {
     try {
-      const response = await clientServer.delete("/delete_comment", {
-        data: {
-          token: localStorage.getItem("token"),
-          comment_id,
-        },
+      const res = await clientServer.delete("/delete_comment", {
+        data: { comment_id },
       });
 
-      return response.data;
+      return { comment_id };
     } catch (err) {
-      return thunkAPI.rejectWithValue("Something Went Wrong!");
+      return thunkAPI.rejectWithValue(
+        err.response?.data?.message || "Failed to delete comment",
+      );
     }
-  }
+  },
 );

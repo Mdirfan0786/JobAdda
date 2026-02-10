@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import PDFDocument from "pdfkit";
 import fs from "fs";
+import jwt from "jsonwebtoken";
 
 dotenv.config();
 
@@ -118,11 +119,11 @@ export const Login = async (req, res) => {
       return res.status(400).json({ message: "Invalid Credentials!" });
     }
 
-    // const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
-    //   expiresIn: "1hr",
-    // });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1hr",
+    });
 
-    const token = crypto.randomBytes(32).toString("hex");
+    // const token = crypto.randomBytes(32).toString("hex");
     await User.updateOne({ _id: user._id }, { $set: { token } });
 
     res.json({ token: token, userId: user._id });
@@ -134,35 +135,22 @@ export const Login = async (req, res) => {
 
 //* =============== Uploading Profile Picture =============== *//
 export const uploadProfilePicture = async (req, res) => {
-  const { token } = req.body;
-
   try {
-    const user = await User.findOne({ token: token });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found!" });
-    }
+    const user = req.user;
 
     user.profilePicture = req.file.filename;
     await user.save();
 
-    return res.json({ message: "profile picture updated!" });
+    res.json({ message: "profile picture updated!" });
   } catch (err) {
-    console.error("Error while uploading profile picture! ", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    res.status(500).json({ message: "Server Error!" });
   }
 };
 
 //* =============== Uploading Profile Background Picture =============== *//
 export const uploadingBackgroundPicture = async (req, res) => {
-  const { token } = req.body;
-
   try {
-    const user = await User.findOne({ token: token });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found!" });
-    }
+    const user = req.user;
 
     user.profileBackgroundPicture = req.file.filename;
     await user.save();
@@ -177,12 +165,8 @@ export const uploadingBackgroundPicture = async (req, res) => {
 //* =============== Updating User Profile =============== *//
 export const userUpdateProfile = async (req, res) => {
   try {
-    const { token, ...newUserData } = req.body;
-
-    const user = await User.findOne({ token });
-    if (!user) {
-      return res.status(404).json({ message: "User not found!" });
-    }
+    const user = req.user;
+    const newUserData = req.body;
 
     const { username, email } = newUserData;
 
@@ -209,12 +193,7 @@ export const userUpdateProfile = async (req, res) => {
 //* =============== getting User and User Profile =============== *//
 export const getUserAndProfile = async (req, res) => {
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
-    const user = await User.findOne({ token: token });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found!" });
-    }
+    const user = req.user;
 
     const UserProfile = await Profile.findOne({ userId: user._id }).populate(
       "userId",
@@ -230,10 +209,8 @@ export const getUserAndProfile = async (req, res) => {
 //* =============== Update User Profile Data =============== *//
 export const updateUserProfile = async (req, res) => {
   try {
-    const { token, bio, currentPost } = req.body;
-
-    const user = await User.findOne({ token });
-    if (!user) return res.status(404).json({ message: "User not found!" });
+    const { bio, currentPost } = req.body;
+    const user = req.user;
 
     const profile = await Profile.findOne({ userId: user._id });
 
@@ -251,17 +228,13 @@ export const updateUserProfile = async (req, res) => {
 //* =============== Create Work history =============== *//
 export const CreateWorkHistory = async (req, res) => {
   try {
-    const { token, company, position, years } = req.body;
+    const { company, position, years } = req.body;
+    const user = req.user;
 
     if (!company || !position || !years) {
       return res.status(400).json({
         message: "Company, position and years are required",
       });
-    }
-
-    const user = await User.findOne({ token });
-    if (!user) {
-      return res.status(404).json({ message: "User Not Found!" });
     }
 
     const profile = await Profile.findOne({ userId: user._id });
@@ -290,10 +263,8 @@ export const CreateWorkHistory = async (req, res) => {
 //* =============== Update Work history =============== *//
 export const updateWorkHistory = async (req, res) => {
   const { workId } = req.params;
-  const { token, company, position, years } = req.body;
-
-  const user = await User.findOne({ token });
-  if (!user) return res.status(404).json({ message: "User not found" });
+  const { company, position, years } = req.body;
+  const user = req.user;
 
   const profile = await Profile.findOne({ userId: user._id });
   const work = profile.pastWork.id(workId);
@@ -314,15 +285,12 @@ export const updateWorkHistory = async (req, res) => {
 //* =============== Delete Work Details =============== *//
 export const delete_User_Work_details = async (req, res) => {
   try {
-    const { token } = req.body;
+    const user = req.user;
     const { workId } = req.params;
 
-    if (!token || !workId) {
-      return res.status(400).json({ message: "token & workId are required!" });
+    if (!workId) {
+      return res.status(400).json({ message: "workId are required!" });
     }
-
-    const user = await User.findOne({ token });
-    if (!user) return res.status(404).json({ message: "user not found!" });
 
     const profile = await Profile.findOne({ userId: user._id });
     if (!profile) {
@@ -350,17 +318,13 @@ export const delete_User_Work_details = async (req, res) => {
 //* =============== Create Education Details =============== *//
 export const CreateEducationDetails = async (req, res) => {
   try {
-    const { token, school, degree, fieldOfStudy } = req.body;
+    const { school, degree, fieldOfStudy } = req.body;
+    const user = req.user;
 
     if (!school || !degree || !fieldOfStudy) {
       return res.status(400).json({
         message: "School, Degree and FieldOfStudy are required",
       });
-    }
-
-    const user = await User.findOne({ token });
-    if (!user) {
-      return res.status(404).json({ message: "User Not Found!" });
     }
 
     const profile = await Profile.findOne({ userId: user._id });
@@ -389,10 +353,9 @@ export const CreateEducationDetails = async (req, res) => {
 //* =============== Update Education Details =============== *//
 export const updateEducationDetails = async (req, res) => {
   const { educationId } = req.params;
-  const { token, school, degree, fieldOfStudy } = req.body;
+  const { school, degree, fieldOfStudy } = req.body;
 
-  const user = await User.findOne({ token });
-  if (!user) return res.status(404).json({ message: "User not found" });
+  const user = req.user;
 
   const profile = await Profile.findOne({ userId: user._id });
   const education = profile.education.id(educationId);
@@ -414,16 +377,13 @@ export const updateEducationDetails = async (req, res) => {
 export const delete_User_Education_details = async (req, res) => {
   try {
     const { educationId } = req.params;
-    const { token } = req.body;
+    const user = req.user;
 
-    if (!token || !educationId) {
+    if (!educationId) {
       return res.status(400).json({
-        message: "token and educationId are required",
+        message: "educationId are required",
       });
     }
-
-    const user = await User.findOne({ token });
-    if (!user) return res.status(404).json({ message: "User not found!" });
 
     const profile = await Profile.findOne({ userId: user._id });
     const education = profile.education.id(educationId);
@@ -479,17 +439,8 @@ export const downloadResume = async (req, res) => {
 //* =============== Sending Connection Request =============== *//
 export const sendConnectionRequest = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1] || authHeader;
-
-    if (!token) {
-      return res.status(401).json({ message: "Token missing" });
-    }
-
+    const user = req.user;
     const { connectionId } = req.body;
-
-    const user = await User.findOne({ token });
-    if (!user) return res.status(404).json({ message: "User not found" });
 
     if (String(user._id) === String(connectionId)) {
       return res.status(400).json({ message: "Cannot connect with yourself" });
@@ -522,13 +473,7 @@ export const sendConnectionRequest = async (req, res) => {
 //* =============== Getting send Request =============== *//
 export const getSentRequests = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : authHeader;
-
-    const user = await User.findOne({ token });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const user = req.user;
 
     const requests = await ConnectionRequest.find({
       userId: user._id,
@@ -545,11 +490,7 @@ export const getSentRequests = async (req, res) => {
 //* =============== get received Request =============== *//
 export const getReceivedRequests = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1] || authHeader;
-
-    const user = await User.findOne({ token });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const user = req.user;
 
     const requests = await ConnectionRequest.find({
       connectionId: user._id,
@@ -567,11 +508,7 @@ export const getReceivedRequests = async (req, res) => {
 
 export const getConnections = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1] || authHeader;
-
-    const user = await User.findOne({ token });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const user = req.user;
 
     const connections = await ConnectionRequest.find({
       status: "accepted",
@@ -588,13 +525,8 @@ export const getConnections = async (req, res) => {
 //* =============== Accept Connection Request =============== *//
 export const acceptConnectionRequest = async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.split(" ")[1] || authHeader;
-
     const { requestId, action } = req.body;
-
-    const user = await User.findOne({ token });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const user = req.user;
 
     const connection = await ConnectionRequest.findById(requestId);
     if (!connection)
@@ -616,6 +548,7 @@ export const getUserDetailsBasedOnUsername = async (req, res) => {
     const { username } = req.params;
 
     const user = await User.findOne({ username });
+
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
     }

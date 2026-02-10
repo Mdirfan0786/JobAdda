@@ -12,6 +12,7 @@ export default function DiscoverComponent() {
   const dispatch = useDispatch();
   const router = useRouter();
 
+  // ================= FETCH USERS =================
   useEffect(() => {
     if (!authState.all_profile_fetched) {
       dispatch(getAllUsers());
@@ -22,14 +23,22 @@ export default function DiscoverComponent() {
     <UserLayout>
       <DashboardLayout>
         <h1 style={{ marginBottom: "1rem" }}>Discover</h1>
+
         <div className={styles.all_user_profile}>
+          {/* LOADING / EMPTY STATE */}
+          {authState.all_profile_fetched &&
+            authState.all_users?.length === 0 && (
+              <p style={{ color: "#888" }}>No users found</p>
+            )}
+
+          {/* USERS LIST */}
           {authState.all_profile_fetched &&
             authState.all_users
               ?.filter(
                 (profile) => profile.userId._id !== authState.user?.userId?._id,
               )
               .map((user) => (
-                <div key={user._id} className={styles.userCard}>
+                <div key={user.userId._id} className={styles.userCard}>
                   <img
                     onClick={() =>
                       router.push(`/view_profile/${user.userId.username}`)
@@ -38,6 +47,7 @@ export default function DiscoverComponent() {
                     src={`${BASE_URL}/${user.userId.profilePicture}`}
                     alt="profilePicture"
                   />
+
                   <div className={styles.userCard_profile_Details}>
                     <h1
                       onClick={() =>

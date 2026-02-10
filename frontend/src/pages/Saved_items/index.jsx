@@ -1,23 +1,25 @@
 import { getAllUsers } from "@/config/redux/action/authAction";
 import DashboardLayout from "@/layout/DashboardLayout";
 import UserLayout from "@/layout/userLayout";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function SavedItemsComponent() {
-  const authState = useSelector((state) => state.auth);
+  const { all_profile_fetched } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!authState.all_profile_fetched) {
+    if (!all_profile_fetched) {
       dispatch(getAllUsers());
     }
-  }, [authState.all_profile_fetched, dispatch]);
+  }, [all_profile_fetched]);
+
   return (
     <UserLayout>
       <DashboardLayout>
         <div>
           <h1>Saved items</h1>
+
           <p
             style={{
               margin: "2rem 0",
@@ -27,7 +29,7 @@ export default function SavedItemsComponent() {
               padding: "1rem",
             }}
           >
-            🚧 This feature is currently under development We’re writing clean
+            🚧 This feature is currently under development. We’re writing clean
             code & fixing bugs. Stay tuned.
           </p>
         </div>

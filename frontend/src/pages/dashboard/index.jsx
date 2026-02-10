@@ -28,14 +28,20 @@ function DashboardComponent() {
   const [fileContent, setFileContent] = useState(null);
   const [commentText, setCommentText] = useState("");
 
-  //Fetching posts user details only when token is confirmed
+  // ================= AUTH and POSTS =================
   useEffect(() => {
-    if (authState.isTokenThere) {
-      const token = localStorage.getItem("token");
-      dispatch(getAllPosts());
-      dispatch(getAboutUser({ token }));
+    if (typeof window === "undefined") return;
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.replace("/auth?mode=login");
+      return;
     }
-  }, [authState.isTokenThere, dispatch]);
+
+    dispatch(getAboutUser());
+    dispatch(getAllPosts());
+  }, [dispatch, router]);
 
   useEffect(() => {
     if (!authState.all_profile_fetched) {
@@ -43,22 +49,20 @@ function DashboardComponent() {
     }
   }, [authState.all_profile_fetched, dispatch]);
 
-  // handling Post upload functionality
+  // ================= CREATE POST =================
   const handlePost = async () => {
-    try {
-      await dispatch(
-        CreatePost({ file: fileContent, body: postContent }),
-      ).unwrap();
+    if (!postContent.trim()) return;
 
-      setPostContent("");
-      setFileContent(null);
-      dispatch(getAllPosts());
-    } catch (error) {
-      console.error("Post failed:", error);
-    }
+    await dispatch(
+      CreatePost({ file: fileContent, body: postContent }),
+    ).unwrap();
+
+    setPostContent("");
+    setFileContent(null);
+    dispatch(getAllPosts());
   };
 
-  // handling Delete Post functionality
+  // ================= DELETE POST =================
   const handleDelete = async (postId) => {
     const isConfirmed = window.confirm(
       "Are you sure you want to delete this post?",
@@ -66,14 +70,11 @@ function DashboardComponent() {
 
     if (!isConfirmed) return;
 
-    await dispatch(
-      deletePost({ token: localStorage.getItem("token"), post_id: postId }),
-    );
-
-    await dispatch(getAllPosts());
+    await dispatch(deletePost({ post_id: postId }));
+    dispatch(getAllPosts());
   };
 
-  // handling Delete Comment functionality
+  // ================= DELETE COMMENT =================
   const handleDeleteComment = async (commentId) => {
     const isConfirmed = window.confirm(
       "Are you sure you want to delete this comment?",
@@ -82,10 +83,10 @@ function DashboardComponent() {
     if (!isConfirmed) return;
 
     await dispatch(deleteComment({ comment_id: commentId }));
-    await dispatch(getAllComments({ post_id: PostState.postId }));
+    dispatch(getAllComments({ post_id: PostState.postId }));
   };
 
-  // Handling Share functionality
+  // ================= SHARE =================
   const handleShare = async (postId) => {
     try {
       const shareUrl = `${window.location.origin}/post/${postId}`;
@@ -96,29 +97,27 @@ function DashboardComponent() {
           text: "Mujhe ye post interesting laga",
           url: shareUrl,
         });
-        console.log("Shared successfully!");
       } else {
         await navigator.clipboard.writeText(shareUrl);
         alert("Link copied to clipboard!");
       }
-    } catch (error) {
-      console.error("Share failed:", error);
+    } catch {
       alert("Share karne me problem aa gayi");
     }
   };
 
-  // handle Likes functionality
+  // ================= LIKES =================
   const handleLikes = async (post) => {
     await dispatch(incrementPostLikes(post._id));
     dispatch(getAllPosts());
   };
 
-  // handle comments functionality
+  // ================= COMMENTS =================
   const handleComments = (post) => {
     dispatch(getAllComments({ post_id: post._id }));
   };
 
-  // handling profile navigation
+  // ================= PROFILE NAV =================
   const handleProfileNavigation = (postUser) => {
     const loggedInUserId = authState.user?.userId?._id;
 
@@ -129,11 +128,9 @@ function DashboardComponent() {
     }
   };
 
-  // Alert
+  // ================= ALERT =================
   const handleAlert = () => {
-    alert(
-      `🚧 This feature is currently under development  We’re writing clean code & fixing bugs. Stay tuned.`,
-    );
+    alert(`🚧 This feature is currently under development. Stay tuned.`);
   };
 
   return (

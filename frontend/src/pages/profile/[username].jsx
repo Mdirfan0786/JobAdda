@@ -13,6 +13,12 @@ import {
   incrementPostLikes,
   postComment,
 } from "@/config/redux/action/postAction";
+import {
+  acceptConnectionRequest,
+  sendConnectionRequest,
+  getSentRequests,
+} from "@/config/redux/action/authAction";
+
 import { resetPostId } from "@/config/redux/reducers/postReducer";
 
 export default function ProfileComponent() {
@@ -27,6 +33,14 @@ export default function ProfileComponent() {
   const PostState = useSelector((state) => state.posts);
   const authState = useSelector((state) => state.auth);
   const userProfile = authState.user;
+
+  const [isRequesting, setIsRequesting] = useState(false);
+  const [localPending, setLocalPending] = useState(false);
+
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  const profileUserId = userProfile?.userId?._id;
 
   // user Profile Updation
   const [name, setName] = useState("");
@@ -61,13 +75,11 @@ export default function ProfileComponent() {
 
   //Fetching posts user details only when token is confirmed
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
     if (token) {
       dispatch(getAllPosts());
-      dispatch(getAboutUser({ token }));
+      dispatch(getAboutUser());
     }
-  }, [dispatch]);
+  }, [token]);
 
   // handling Delete Post functionality
   const handleDelete = async (postId) => {
@@ -77,9 +89,7 @@ export default function ProfileComponent() {
 
     if (!isConfirmed) return;
 
-    await dispatch(
-      deletePost({ token: localStorage.getItem("token"), post_id: postId }),
-    );
+    await dispatch(deletePost({ token: token, post_id: postId }));
 
     await dispatch(getAllPosts());
   };
@@ -159,7 +169,6 @@ export default function ProfileComponent() {
     const file = e.target.files[0];
     if (!file) return;
 
-    const token = localStorage.getItem("token");
     if (!token) return;
 
     const formData = new FormData();
@@ -169,7 +178,7 @@ export default function ProfileComponent() {
     try {
       await clientServer.post("/upload_profile_background_picture", formData);
 
-      dispatch(getAboutUser({ token }));
+      dispatch(getAboutUser());
     } catch (err) {
       console.error("Background upload failed", err);
       alert("Background upload failed");
@@ -181,7 +190,6 @@ export default function ProfileComponent() {
     const file = e.target.files[0];
     if (!file) return;
 
-    const token = localStorage.getItem("token");
     if (!token) return;
 
     const formData = new FormData();
@@ -191,7 +199,7 @@ export default function ProfileComponent() {
     try {
       await clientServer.post("/upload_profile_picture", formData);
 
-      dispatch(getAboutUser({ token }));
+      dispatch(getAboutUser());
     } catch (err) {
       console.error("Background upload failed", err);
       alert("Background upload failed");
@@ -201,8 +209,6 @@ export default function ProfileComponent() {
   // updating user Profile Details
 
   const handleUpdateProfile = async () => {
-    const token = localStorage.getItem("token");
-
     try {
       await clientServer.patch("/user_update", {
         token,
@@ -214,7 +220,7 @@ export default function ProfileComponent() {
         currentPost,
       });
 
-      dispatch(getAboutUser({ token }));
+      dispatch(getAboutUser());
       setShowUpdateProfile(false);
     } catch (err) {
       console.error("Failed during user details Updation!");
@@ -228,7 +234,6 @@ export default function ProfileComponent() {
       return;
     }
 
-    const token = localStorage.getItem("token");
     const yearsValue = fromYear && toYear ? `${fromYear} - ${toYear}` : "";
 
     try {
@@ -239,7 +244,7 @@ export default function ProfileComponent() {
         years: yearsValue,
       });
 
-      dispatch(getAboutUser({ token }));
+      dispatch(getAboutUser());
       setShowUpdateWork(false);
       setWorkId(null);
     } catch (err) {
@@ -249,8 +254,6 @@ export default function ProfileComponent() {
 
   // Handling ADD WORK DETAILS!
   const handleAddWork = async () => {
-    const token = localStorage.getItem("token");
-
     if (!company || !position || !fromYear) {
       alert("Please fill all required fields");
       return;
@@ -266,7 +269,7 @@ export default function ProfileComponent() {
       years: yearsValue,
     });
 
-    dispatch(getAboutUser({ token }));
+    dispatch(getAboutUser());
 
     setCompany("");
     setPosition("");
@@ -286,13 +289,11 @@ export default function ProfileComponent() {
 
       if (!workID) return alert("Work ID Missing!");
 
-      const token = localStorage.getItem("token");
-
       await clientServer.delete(`/delete_User_Work_details/${workID}`, {
         data: { token },
       });
 
-      dispatch(getAboutUser({ token }));
+      dispatch(getAboutUser());
     } catch (err) {
       console.error("Error While Deleting Education Details!", err);
     }
@@ -300,8 +301,6 @@ export default function ProfileComponent() {
 
   // handling createion of Education Details
   const handleEducation = async () => {
-    const token = localStorage.getItem("token");
-
     if (!school || !degree || !fieldOfStudy) {
       alert("Please fill all required fields");
       return;
@@ -314,7 +313,7 @@ export default function ProfileComponent() {
       fieldOfStudy,
     });
 
-    dispatch(getAboutUser({ token }));
+    dispatch(getAboutUser());
 
     setSchool("");
     setDegree("");
@@ -329,8 +328,6 @@ export default function ProfileComponent() {
       return;
     }
 
-    const token = localStorage.getItem("token");
-
     try {
       await clientServer.put(`/update_Education_details/${educationId}`, {
         token,
@@ -339,7 +336,7 @@ export default function ProfileComponent() {
         fieldOfStudy,
       });
 
-      dispatch(getAboutUser({ token }));
+      dispatch(getAboutUser());
       setShowEditEducationDetails(false);
       setEducationId(null);
     } catch (err) {
@@ -361,13 +358,11 @@ export default function ProfileComponent() {
 
       if (!eduID) return alert("Education ID Missing!");
 
-      const token = localStorage.getItem("token");
-
       await clientServer.delete(`/delete_User_Education_details/${eduID}`, {
         data: { token },
       });
 
-      dispatch(getAboutUser({ token }));
+      dispatch(getAboutUser());
     } catch (err) {
       console.error("Error While Deleting Work Details!", err);
     }
@@ -385,6 +380,27 @@ export default function ProfileComponent() {
       </UserLayout>
     );
   }
+
+  const sentRequests = authState.sentRequests || [];
+  const receivedRequests = authState.receivedRequests || [];
+  const connections = authState.connections || [];
+
+  const isConnected = connections.some(
+    (c) =>
+      String(c.userId?._id) === String(profileUserId) ||
+      String(c.connectionId?._id) === String(profileUserId),
+  );
+
+  const isReceived = receivedRequests.some(
+    (r) =>
+      String(r.userId?._id) === String(profileUserId) && r.status === "pending",
+  );
+
+  const finalIsSent =
+    localPending ||
+    sentRequests.some(
+      (r) => r.connectionId?._id === profileUserId && r.status === "pending",
+    );
 
   return (
     <UserLayout>
@@ -682,7 +698,7 @@ export default function ProfileComponent() {
                                 }),
                               );
 
-                              await dispatch(getSentRequests(token));
+                              await dispatch(getSentRequests());
                             } finally {
                               setIsRequesting(false);
                             }
@@ -1519,7 +1535,11 @@ export default function ProfileComponent() {
 
                 {PostState.postId && (
                   <div
-                    onClick={() => dispatch(resetPostId())}
+                    onClick={() => {
+                      if (!commentText.trim()) {
+                        dispatch(resetPostId());
+                      }
+                    }}
                     className={styles.comments_Container}
                   >
                     <div

@@ -12,75 +12,60 @@ function LoginComponent() {
   const dispatch = useDispatch();
   const { mode } = router.query;
 
-  const [userLoginMethod, setUserLoginMethod] = useState(false);
+  const [userLoginMethod, setUserLoginMethod] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  // ================= MESSAGE AUTO CLEAR =================
   useEffect(() => {
-    if (authState.message) {
-      const timer = setTimeout(() => {
-        dispatch(emptyMessage());
-      }, 3000);
+    if (!authState.message) return;
 
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      dispatch(emptyMessage());
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, [authState.message, dispatch]);
 
-  // Show/Hide Password
-  const handleEnterSubmit = (e) => {
-    if (e.key === "Enter") {
-      if (userLoginMethod) {
-        handleLogin();
-      } else {
-        handleRegister();
-      }
-    }
-  };
-
-  // if Login then go to /dashboard
+  // ================= MODE HANDLING =================
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) router.replace("/dashboard");
-  }, [router]);
-
-  // Login & Register Mode
-  useEffect(() => {
-    if (mode === "login") {
-      setUserLoginMethod(true);
-    } else if (mode === "signup") {
-      setUserLoginMethod(false);
-    }
+    setUserLoginMethod(mode !== "signup");
   }, [mode]);
 
-  // redirect /dashboard after Login
+  // ================= REDIRECT AFTER LOGIN =================
   useEffect(() => {
     if (authState.loggedIn) {
       router.replace("/dashboard");
     }
-  }, [authState.loggedIn]);
+  }, [authState.loggedIn, router]);
 
-  useEffect(() => {
-    if (authState.isSuccess && !userLoginMethod) {
-      setUserLoginMethod(true);
-      router.replace("/auth?mode=login");
-      dispatch(emptyMessage());
-    }
-  }, [authState.isSuccess, userLoginMethod, router, dispatch]);
-
-  // setting showPass Hide
+  // ================= PASSWORD VISIBILITY RESET =================
   useEffect(() => {
     setShowPassword(false);
   }, [userLoginMethod]);
 
+  // ================= VALIDATIONS =================
+  const isLoginValid = email && password;
+  const isRegisterValid = email && password && name && username;
+
   const handleRegister = () => {
+    if (!isRegisterValid) return;
     dispatch(registerUser({ email, username, password, name }));
+    router.push("/auth?mode=login");
   };
 
   const handleLogin = () => {
+    if (!isLoginValid) return;
     dispatch(loginUser({ email, password }));
+  };
+
+  const handleEnterSubmit = (e) => {
+    if (e.key !== "Enter") return;
+
+    userLoginMethod ? handleLogin() : handleRegister();
   };
 
   return (
@@ -100,7 +85,6 @@ function LoginComponent() {
                     ? styles.errorMessage
                     : styles.successMessage
                 }
-                style={{ display: authState.message ? "block" : "none" }}
               >
                 {typeof authState.message === "string"
                   ? authState.message
@@ -112,19 +96,16 @@ function LoginComponent() {
               {!userLoginMethod && (
                 <div className={styles.inputRow}>
                   <input
-                    onChange={(e) => setName(e.target.value)}
                     value={name}
+                    onChange={(e) => setName(e.target.value)}
                     className={styles.inputField}
-                    type="text"
                     placeholder="Name"
                     onKeyDown={handleEnterSubmit}
                   />
-
                   <input
-                    onChange={(e) => setUsername(e.target.value)}
                     value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     className={styles.inputField}
-                    type="text"
                     placeholder="Username"
                     onKeyDown={handleEnterSubmit}
                   />
@@ -132,8 +113,8 @@ function LoginComponent() {
               )}
 
               <input
-                onChange={(e) => setEmail(e.target.value)}
                 value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className={styles.inputField}
                 type="email"
                 placeholder="Email"
@@ -142,14 +123,13 @@ function LoginComponent() {
 
               <div className={styles.passwordWrapper}>
                 <input
-                  onChange={(e) => setPassword(e.target.value)}
                   value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className={styles.inputField}
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   onKeyDown={handleEnterSubmit}
                 />
-
                 <span
                   className={styles.eyeIcon}
                   onClick={() => setShowPassword(!showPassword)}
@@ -159,28 +139,18 @@ function LoginComponent() {
               </div>
 
               <button
-                onClick={() => {
-                  if (userLoginMethod) {
-                    handleLogin();
-                  } else {
-                    handleRegister();
-                  }
-                }}
+                onClick={userLoginMethod ? handleLogin : handleRegister}
                 className={styles.authBtn}
+                disabled={userLoginMethod ? !isLoginValid : !isRegisterValid}
               >
                 {userLoginMethod ? "Sign in" : "Sign Up"}
               </button>
 
-              {/* Toggle Sign In / Sign Up */}
               <p
-                style={{
-                  marginTop: "0.75rem",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                }}
+                className={styles.toggleText}
                 onClick={() => {
                   router.push(
-                    `/auth?mode=${userLoginMethod ? "signup" : "login"}`
+                    `/auth?mode=${userLoginMethod ? "signup" : "login"}`,
                   );
                   setEmail("");
                   setPassword("");
@@ -197,13 +167,7 @@ function LoginComponent() {
 
           <div className={styles.cardContainer_right}>
             <div style={{ padding: "2rem", textAlign: "center" }}>
-              <h2
-                style={{
-                  fontSize: "1.8rem",
-                  fontWeight: "bold",
-                  marginBottom: "1rem",
-                }}
-              >
+              <h2 style={{ fontSize: "1.8rem", fontWeight: "bold" }}>
                 Learn the skills you need to succeed
               </h2>
               <img

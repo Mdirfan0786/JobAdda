@@ -9,10 +9,12 @@ import {
   getAllPosts,
   increament_Likes,
 } from "../controllers/posts.controller.js";
-import multer, { diskStorage } from "multer";
+import multer from "multer";
+import { isLoggedIn } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
+// ================= MULTER =================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "uploads/");
@@ -21,19 +23,22 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
+// ================= PUBLIC =================
 router.get("/", activeCheck);
-
-// Post routes
-router.post("/create_post", upload.single("media"), createPost);
 router.get("/posts", getAllPosts);
-router.delete("/delete_post", deletePost);
-
-// Comment Routes
-router.post("/comment", commentPost);
 router.get("/get_comments", get_comment_by_post);
-router.delete("/delete_comment", deleteCommentOfUser);
-router.post("/increment_post_likes", increament_Likes);
+
+// ================= PROTECTED =================
+router.post("/create_post", isLoggedIn, upload.single("media"), createPost);
+
+router.post("/comment", isLoggedIn, commentPost);
+
+router.post("/increment_post_likes", isLoggedIn, increament_Likes);
+
+router.delete("/delete_post", isLoggedIn, deletePost);
+
+router.delete("/delete_comment", isLoggedIn, deleteCommentOfUser);
 
 export default router;

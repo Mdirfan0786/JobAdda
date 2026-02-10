@@ -1,35 +1,43 @@
 import { getAllUsers } from "@/config/redux/action/authAction";
 import DashboardLayout from "@/layout/DashboardLayout";
 import UserLayout from "@/layout/userLayout";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-export default function JobComponent() {
-  const authState = useSelector((state) => state.auth);
+export default function JobsComponent() {
+  const { all_profile_fetched } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
+  // ================= FETCH USERS (for sidebar) =================
   useEffect(() => {
-    if (!authState.all_profile_fetched) {
+    if (!all_profile_fetched) {
       dispatch(getAllUsers());
     }
-  }, [authState.all_profile_fetched, dispatch]);
+  }, [all_profile_fetched, dispatch]);
+
   return (
     <UserLayout>
       <DashboardLayout>
         <div>
           <h1>Jobs</h1>
-          <p
+
+          <div
             style={{
               margin: "2rem 0",
               minHeight: "8rem",
               background: "#fff",
               borderRadius: "0.5rem",
               padding: "1rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#555",
+              textAlign: "center",
             }}
           >
-            🚧 This feature is currently under development We’re writing clean
+            🚧 This feature is currently under development. We’re writing clean
             code & fixing bugs. Stay tuned.
-          </p>
+          </div>
         </div>
       </DashboardLayout>
     </UserLayout>

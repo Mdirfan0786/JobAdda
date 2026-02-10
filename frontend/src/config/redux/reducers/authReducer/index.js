@@ -13,6 +13,7 @@ import {
 
 const initialState = {
   user: null,
+
   isLoading: false,
   isError: false,
   isSuccess: false,
@@ -33,17 +34,15 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     reset: () => initialState,
-    handleLoginUser: (state) => {
-      state.message = "hello";
-    },
     emptyMessage: (state) => {
       state.message = "";
+      state.isError = false;
+      state.isSuccess = false;
     },
-    setTokenIsThere: (state) => {
-      state.isTokenThere = true;
-    },
-    setTokenNotThere: (state) => {
-      state.isTokenThere = false;
+    logout: (state) => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      return initialState;
     },
   },
 
@@ -52,6 +51,8 @@ const authSlice = createSlice({
       // ================= LOGIN =================
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
+        state.isError = false;
+        state.message = "";
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -68,6 +69,7 @@ const authSlice = createSlice({
       // ================= REGISTER =================
       .addCase(registerUser.pending, (state) => {
         state.isLoading = true;
+        state.isError = false;
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.isLoading = false;
@@ -81,9 +83,18 @@ const authSlice = createSlice({
       })
 
       // ================= USER PROFILE =================
+      .addCase(getAboutUser.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(getAboutUser.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.profileFetched = true;
+        state.loggedIn = true;
         state.user = action.payload;
+      })
+      .addCase(getAboutUser.rejected, (state) => {
+        state.isLoading = false;
+        state.loggedIn = false;
       })
 
       // ================= ALL USERS =================
@@ -97,7 +108,6 @@ const authSlice = createSlice({
         state.message = action.payload?.message || "Request sent";
       })
       .addCase(sendConnectionRequest.rejected, (state, action) => {
-        state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
       })
@@ -124,7 +134,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { reset, emptyMessage, setTokenIsThere, setTokenNotThere } =
-  authSlice.actions;
-
+export const { reset, emptyMessage, logout } = authSlice.actions;
 export default authSlice.reducer;

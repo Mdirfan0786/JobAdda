@@ -131,6 +131,8 @@ JWT_SECRET_KEY=your_secret_key
 
 ## ▶️ Run Locally
 
+Backend:
+
 ```Backend
 
 cd backend
@@ -138,6 +140,7 @@ npm install
 npm run dev
 ```
 
+Frontend:
 ```Frontend
 
 cd frontend

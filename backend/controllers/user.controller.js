@@ -111,7 +111,9 @@ export const Login = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (!user) return res.status(404).json({ message: "Invalid Credentials!" });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid Credentials!" });
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
@@ -120,15 +122,15 @@ export const Login = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
-      expiresIn: "1hr",
+      expiresIn: "1h",
     });
 
-    // const token = crypto.randomBytes(32).toString("hex");
-    await User.updateOne({ _id: user._id }, { $set: { token } });
-
-    res.json({ token: token, userId: user._id });
+    res.json({
+      token,
+      userId: user._id,
+    });
   } catch (err) {
-    console.error("Error while fetching User details! ", err.message);
+    console.error("Login Error:", err.message);
     return res.status(500).json({ message: "Server Error!" });
   }
 };

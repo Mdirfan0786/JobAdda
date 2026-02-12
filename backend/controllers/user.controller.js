@@ -7,6 +7,7 @@ import crypto from "crypto";
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import jwt from "jsonwebtoken";
+import AppError from "../utils/appError.js";
 
 dotenv.config();
 
@@ -61,12 +62,12 @@ const convertUserDataTOPDF = async (userData) => {
 };
 
 //* =============== Register new User =============== *//
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
   try {
     const { name, email, password, username } = req.body;
 
     if (!name || !email || !password || !username) {
-      return res.status(400).json({ message: "All fields are required!" });
+      throw new AppError(400, "All fields are required!");
     }
 
     const existingUser = await User.findOne({
@@ -74,9 +75,7 @@ export const register = async (req, res) => {
     });
 
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "email & Username already exist!" });
+      throw new AppError(400, "Email or Username already exists!");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -95,30 +94,29 @@ export const register = async (req, res) => {
 
     return res.json({ message: "User created!" });
   } catch (err) {
-    console.log("Error while Register a new user : ", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Login =============== *//
-export const Login = async (req, res) => {
+export const Login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "All fields are required!" });
+      throw new AppError(400, "All fields are required!");
     }
 
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid Credentials!" });
+      throw new AppError(400, "invalid Credential!");
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid Credentials!" });
+      throw new AppError(400, "invalid Credential!");
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
@@ -130,13 +128,12 @@ export const Login = async (req, res) => {
       userId: user._id,
     });
   } catch (err) {
-    console.error("Login Error:", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Uploading Profile Picture =============== *//
-export const uploadProfilePicture = async (req, res) => {
+export const uploadProfilePicture = async (req, res, next) => {
   try {
     const user = req.user;
 
@@ -145,12 +142,12 @@ export const uploadProfilePicture = async (req, res) => {
 
     res.json({ message: "profile picture updated!" });
   } catch (err) {
-    res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Uploading Profile Background Picture =============== *//
-export const uploadingBackgroundPicture = async (req, res) => {
+export const uploadingBackgroundPicture = async (req, res, next) => {
   try {
     const user = req.user;
 
@@ -159,13 +156,12 @@ export const uploadingBackgroundPicture = async (req, res) => {
 
     return res.json({ message: "profile background picture updated!" });
   } catch (err) {
-    console.error("Error while uploading profile picture! ", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Updating User Profile =============== *//
-export const userUpdateProfile = async (req, res) => {
+export const userUpdateProfile = async (req, res, next) => {
   try {
     const user = req.user;
     const newUserData = req.body;
@@ -177,9 +173,7 @@ export const userUpdateProfile = async (req, res) => {
     });
 
     if (existingUser && String(existingUser._id) !== String(user._id)) {
-      return res.status(400).json({
-        message: "Email or Username already taken!",
-      });
+      throw new AppError(400, "Email or Username already taken!");
     }
 
     Object.assign(user, newUserData);
@@ -187,13 +181,12 @@ export const userUpdateProfile = async (req, res) => {
 
     return res.json({ message: "User Updated!" });
   } catch (err) {
-    console.error("Error while updating user profile! ", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== getting User and User Profile =============== *//
-export const getUserAndProfile = async (req, res) => {
+export const getUserAndProfile = async (req, res, next) => {
   try {
     const user = req.user;
 
@@ -202,14 +195,18 @@ export const getUserAndProfile = async (req, res) => {
       "name email username profilePicture profileBackgroundPicture",
     );
 
+    if (!UserProfile) {
+      throw new AppError(404, "Profile not found");
+    }
+
     res.json(UserProfile);
   } catch (err) {
-    console.error("Error While getting User Profile! ", err.message);
+    next(err);
   }
 };
 
 //* =============== Update User Profile Data =============== *//
-export const updateUserProfile = async (req, res) => {
+export const updateUserProfile = async (req, res, next) => {
   try {
     const { bio, currentPost } = req.body;
     const user = req.user;
@@ -223,25 +220,23 @@ export const updateUserProfile = async (req, res) => {
 
     return res.json({ message: "Profile updated safely!" });
   } catch (err) {
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Create Work history =============== *//
-export const CreateWorkHistory = async (req, res) => {
+export const CreateWorkHistory = async (req, res, next) => {
   try {
     const { company, position, years } = req.body;
     const user = req.user;
 
     if (!company || !position || !years) {
-      return res.status(400).json({
-        message: "Company, position and years are required",
-      });
+      throw new AppError(400, "Company, position and years are required");
     }
 
     const profile = await Profile.findOne({ userId: user._id });
     if (!profile) {
-      return res.status(404).json({ message: "Profile Not Found!" });
+      throw new AppError(404, "Profile Not Found!");
     }
 
     profile.pastWork.push({
@@ -257,51 +252,58 @@ export const CreateWorkHistory = async (req, res) => {
       pastWork: profile.pastWork,
     });
   } catch (err) {
-    console.error("Error While Adding Work!", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Update Work history =============== *//
-export const updateWorkHistory = async (req, res) => {
-  const { workId } = req.params;
-  const { company, position, years } = req.body;
-  const user = req.user;
+export const updateWorkHistory = async (req, res, next) => {
+  try {
+    const { workId } = req.params;
+    const { company, position, years } = req.body;
+    const user = req.user;
 
-  const profile = await Profile.findOne({ userId: user._id });
-  const work = profile.pastWork.id(workId);
+    const profile = await Profile.findOne({ userId: user._id });
+    if (!profile) {
+      throw new AppError(404, "Profile not found");
+    }
 
-  if (!work) {
-    return res.status(404).json({ message: "Work history not found" });
+    const work = profile.pastWork.id(workId);
+
+    if (!work) {
+      throw new AppError(404, "Work history not found");
+    }
+
+    work.company = company;
+    work.position = position;
+    work.years = years;
+
+    await profile.save();
+
+    return res.json({ message: "Work history updated successfully!" });
+  } catch (err) {
+    next(err);
   }
-
-  work.company = company;
-  work.position = position;
-  work.years = years;
-
-  await profile.save();
-
-  return res.json({ message: "Work history updated successfully!" });
 };
 
 //* =============== Delete Work Details =============== *//
-export const delete_User_Work_details = async (req, res) => {
+export const delete_User_Work_details = async (req, res, next) => {
   try {
     const user = req.user;
     const { workId } = req.params;
 
     if (!workId) {
-      return res.status(400).json({ message: "workId are required!" });
+      throw new AppError(400, "workId are required!");
     }
 
     const profile = await Profile.findOne({ userId: user._id });
     if (!profile) {
-      return res.status(404).json({ message: "profile not found!" });
+      throw new AppError(404, "profile not found!");
     }
     const work = profile.pastWork.id(workId);
 
     if (!work) {
-      return res.status(404).json({ message: "work details not found!" });
+      throw new AppError(404, "work details not found!");
     }
 
     work.deleteOne();
@@ -312,26 +314,23 @@ export const delete_User_Work_details = async (req, res) => {
       pastwork: profile.pastWork,
     });
   } catch (err) {
-    console.error("Error While Delete Work Details!", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Create Education Details =============== *//
-export const CreateEducationDetails = async (req, res) => {
+export const CreateEducationDetails = async (req, res, next) => {
   try {
     const { school, degree, fieldOfStudy } = req.body;
     const user = req.user;
 
     if (!school || !degree || !fieldOfStudy) {
-      return res.status(400).json({
-        message: "School, Degree and FieldOfStudy are required",
-      });
+      throw new AppError(400, "School, Degree and FieldOfStudy are required");
     }
 
     const profile = await Profile.findOne({ userId: user._id });
     if (!profile) {
-      return res.status(404).json({ message: "Profile Not Found!" });
+      throw new AppError(404, "profile not found!");
     }
 
     profile.education.push({
@@ -347,51 +346,56 @@ export const CreateEducationDetails = async (req, res) => {
       education: profile.education,
     });
   } catch (err) {
-    console.error("Error While Adding Education Details!", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Update Education Details =============== *//
-export const updateEducationDetails = async (req, res) => {
-  const { educationId } = req.params;
-  const { school, degree, fieldOfStudy } = req.body;
+export const updateEducationDetails = async (req, res, next) => {
+  try {
+    const { educationId } = req.params;
+    const { school, degree, fieldOfStudy } = req.body;
 
-  const user = req.user;
+    const user = req.user;
 
-  const profile = await Profile.findOne({ userId: user._id });
-  const education = profile.education.id(educationId);
+    const profile = await Profile.findOne({ userId: user._id });
+    if (!profile) {
+      throw new AppError(404, "profile not found!");
+    }
 
-  if (!education) {
-    return res.status(404).json({ message: "Education Details not found" });
+    const education = profile.education.id(educationId);
+
+    if (!education) {
+      throw new AppError(404, "Education Details not found");
+    }
+
+    education.school = school;
+    education.degree = degree;
+    education.fieldOfStudy = fieldOfStudy;
+
+    await profile.save();
+
+    return res.json({ message: "Education details updated successfully!" });
+  } catch (err) {
+    next(err);
   }
-
-  education.school = school;
-  education.degree = degree;
-  education.fieldOfStudy = fieldOfStudy;
-
-  await profile.save();
-
-  return res.json({ message: "Education details updated successfully!" });
 };
 
 //* =============== Delete Education Details =============== *//
-export const delete_User_Education_details = async (req, res) => {
+export const delete_User_Education_details = async (req, res, next) => {
   try {
     const { educationId } = req.params;
     const user = req.user;
 
     if (!educationId) {
-      return res.status(400).json({
-        message: "educationId are required",
-      });
+      throw new AppError(400, "educationId are required");
     }
 
     const profile = await Profile.findOne({ userId: user._id });
     const education = profile.education.id(educationId);
 
     if (!education) {
-      return res.status(404).json({ message: "Education details not found!" });
+      throw new AppError(404, "Education Details not found");
     }
 
     education.deleteOne();
@@ -402,13 +406,12 @@ export const delete_User_Education_details = async (req, res) => {
       education: profile.education,
     });
   } catch (err) {
-    console.error("failed to delete Education Details!", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Getting all User Profile =============== *//
-export const getAllUserProfile = async (req, res) => {
+export const getAllUserProfile = async (req, res, next) => {
   try {
     let profile = await Profile.find().populate(
       "userId",
@@ -419,33 +422,40 @@ export const getAllUserProfile = async (req, res) => {
 
     return res.json({ profile });
   } catch (err) {
-    console.error("Error while getting All User Profile data! ", err.message);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };
 
 //* =============== Download Resume =============== *//
-export const downloadResume = async (req, res) => {
-  const user_id = req.query.id;
+export const downloadResume = async (req, res, next) => {
+  try {
+    const user_id = req.query.id;
 
-  const userProfile = await Profile.findOne({ userId: user_id }).populate(
-    "userId",
-    "name username email profilePicture",
-  );
+    const userProfile = await Profile.findOne({ userId: user_id }).populate(
+      "userId",
+      "name username email profilePicture",
+    );
 
-  let outputPath = await convertUserDataTOPDF(userProfile);
+    if (!userProfile) {
+      throw new AppError(404, "Profile not found");
+    }
 
-  return res.json({ message: outputPath });
+    let outputPath = await convertUserDataTOPDF(userProfile);
+
+    return res.json({ message: outputPath });
+  } catch (err) {
+    next(err);
+  }
 };
 
 //* =============== Sending Connection Request =============== *//
-export const sendConnectionRequest = async (req, res) => {
+export const sendConnectionRequest = async (req, res, next) => {
   try {
     const user = req.user;
     const { connectionId } = req.body;
 
     if (String(user._id) === String(connectionId)) {
-      return res.status(400).json({ message: "Cannot connect with yourself" });
+      throw new AppError(400, "Cannot connect with yourself");
     }
 
     const existingRequest = await ConnectionRequest.findOne({
@@ -467,13 +477,12 @@ export const sendConnectionRequest = async (req, res) => {
 
     return res.status(201).json({ alreadySent: false, request });
   } catch (err) {
-    console.error("Send Connection Error:", err.message);
-    return res.status(500).json({ message: "Server Error" });
+    next(err);
   }
 };
 
 //* =============== Getting send Request =============== *//
-export const getSentRequests = async (req, res) => {
+export const getSentRequests = async (req, res, next) => {
   try {
     const user = req.user;
 
@@ -484,13 +493,12 @@ export const getSentRequests = async (req, res) => {
 
     res.json(requests);
   } catch (err) {
-    console.error("Get Sent Requests Error:", err.message);
-    res.status(500).json({ message: "Server Error" });
+    next(err);
   }
 };
 
 //* =============== get received Request =============== *//
-export const getReceivedRequests = async (req, res) => {
+export const getReceivedRequests = async (req, res, next) => {
   try {
     const user = req.user;
 
@@ -501,14 +509,13 @@ export const getReceivedRequests = async (req, res) => {
 
     res.json(requests);
   } catch (err) {
-    console.error("Get Received Requests Error:", err.message);
-    res.status(500).json({ message: "Server Error" });
+    next(err);
   }
 };
 
 //* =============== get Connection Request =============== *//
 
-export const getConnections = async (req, res) => {
+export const getConnections = async (req, res, next) => {
   try {
     const user = req.user;
 
@@ -519,40 +526,39 @@ export const getConnections = async (req, res) => {
 
     res.json(connections);
   } catch (err) {
-    console.error("Get Connections Error:", err.message);
-    res.status(500).json({ message: "Server Error" });
+    next(err);
   }
 };
 
 //* =============== Accept Connection Request =============== *//
-export const acceptConnectionRequest = async (req, res) => {
+export const acceptConnectionRequest = async (req, res, next) => {
   try {
     const { requestId, action } = req.body;
     const user = req.user;
 
     const connection = await ConnectionRequest.findById(requestId);
-    if (!connection)
-      return res.status(404).json({ message: "Request not found" });
+    if (!connection) {
+      throw new AppError(404, "Request not found");
+    }
 
     connection.status = action === "accept" ? "accepted" : "rejected";
     await connection.save();
 
     res.json({ message: "Updated successfully" });
   } catch (err) {
-    console.error("Accept Request Error:", err.message);
-    res.status(500).json({ message: "Server Error" });
+    next(err);
   }
 };
 
 //* =============== Get User Details Based On Username =============== *//
-export const getUserDetailsBasedOnUsername = async (req, res) => {
+export const getUserDetailsBasedOnUsername = async (req, res, next) => {
   try {
     const { username } = req.params;
 
     const user = await User.findOne({ username });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found!" });
+      throw new AppError(404, "User not found!");
     }
 
     const userProfile = await Profile.findOne({ userId: user._id }).populate(
@@ -561,12 +567,11 @@ export const getUserDetailsBasedOnUsername = async (req, res) => {
     );
 
     if (!userProfile) {
-      return res.status(404).json({ message: "Profile not found!" });
+      throw new AppError(404, "Profile not found!");
     }
 
     return res.status(200).json(userProfile);
   } catch (err) {
-    console.error("Error while fetching user profile:", err);
-    return res.status(500).json({ message: "Server Error!" });
+    next(err);
   }
 };

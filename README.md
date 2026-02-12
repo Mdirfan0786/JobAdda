@@ -5,11 +5,10 @@ A full-stack professional networking platform inspired by LinkedIn.
 
 | Service | Link |
 |----------|------|
-| Frontend : [https://jobadda-frontend.onrender.com](https://jobadda-frontend.onrender.com) |
-| Backend API : [https://jobadda-backend.onrender.com](https://jobadda-8rmh.onrender.com) |
+| Frontend | [https://jobadda-frontend.onrender.com](https://jobadda-frontend.onrender.com) |
+| Backend API | [https://jobadda-backend.onrender.com](https://jobadda-8rmh.onrender.com) |
 
 > ⚠️ Note: If deployed on free hosting (Render), the first request may take 30–60 seconds due to cold start.
-
 ---
 
 JobAdda allows users to create profiles, share posts, like & comment, connect with other users, and manage their professional journey including work history and education — all with a secure, scalable, and well-structured backend.

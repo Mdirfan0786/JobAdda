@@ -21,7 +21,7 @@ JobAdda allows users to create profiles, share posts, like & comment, connect wi
 
 ### 🏠 Home Feed
 
-![Home Feed](./screenshots/home.png)
+![Home Feed](./screenshots/Home.png)
 
 ### 🏠 Dashboard Feed
 
